@@ -72,7 +72,7 @@ It comes in three full blocks (Oddstone, Cobbled Oddstone, Oddstone Bricks), eac
 |---|:---:|:---:|:---:|
 | Sympathetic movement | yes | yes | yes |
 | Grabs slime, honey and Odd Slime | yes | yes | no |
-| Mobs avoid it | yes | yes | no |
+| Land mobs avoid it | yes | yes | no |
 | Blocks redstone like glass does | yes | yes | no |
 | Forms portal frames | no | Cobbled only | no |
 | Cools lava into Hollowstone | yes | no | no |
@@ -107,7 +107,22 @@ They only grab those sticky blocks. They do not grab ordinary blocks, and they d
 
 ### Mob avoidance
 
-Mobs path around Oddstone, Cobbled Oddstone and Oddstone Bricks, and treat the blocks next to them as dangerous. The list of affected mobs is in the config (62 vanilla mobs by default).
+Land mobs path around Oddstone, Cobbled Oddstone and Oddstone Bricks, and treat the blocks next to them as dangerous. By default that is every vanilla mob that walks; flying and swimming mobs never path over blocks, so they are not listed.
+
+#### Mobs from other mods
+
+Mobs added by other mods are not on the default list, so they walk over Oddstone as normal. To make one avoid it, add its id to `affected_mobs` in `config/machinemod/machinemod.json` and run `/machinemod reload` (or restart):
+
+```json
+"oddstone": {
+  "affected_mobs": [
+    "minecraft:zombie",
+    "alexsmobs:grizzly_bear"
+  ]
+}
+```
+
+The file is created on first launch with every vanilla land mob already listed; add the new ids to that list (the id is the one `/summon` uses). Removing an entry stops that mob avoiding Oddstone.
 
 ### Redstone insulation
 
@@ -429,7 +444,7 @@ The config file is `config/machinemod/machinemod.json`, created on first launch.
 | Section | Key | Default | What it sets |
 |---|---|---|---|
 | `oddstone` | `sympathetic_radius` | 12 | Range of sympathetic links and of Transmitters (1 to 16) |
-| `oddstone` | `affected_mobs` | 62 mobs | Which mobs avoid Oddstone |
+| `oddstone` | `affected_mobs` | every vanilla land mob | Which mobs avoid Oddstone ([mobs from other mods](#mobs-from-other-mods)) |
 | `pistons` | `ranged_scan_range` | 12 | Reach of the Repulser and Attractor |
 | `pistons` | `base_push_limit` | 12 | Piston push limit before Braces |
 | `machine_braces` | `push_limit_per_brace` | 6 | Extra blocks per Brace |
