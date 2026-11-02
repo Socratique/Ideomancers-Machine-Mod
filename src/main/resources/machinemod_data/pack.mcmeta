@@ -1,0 +1,6 @@
+{
+  "pack": {
+    "description": "Ideomancer's Machine Mod: recipes, loot, tags and world generation (added only when Ideomod is not installed)",
+    "pack_format": 15
+  }
+}

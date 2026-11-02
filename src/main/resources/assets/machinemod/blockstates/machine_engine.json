@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "lit=false,powered=false": { "model": "machinemod:block/machine_engine" },
+    "lit=false,powered=true":  { "model": "machinemod:block/machine_engine" },
+    "lit=true,powered=false":  { "model": "machinemod:block/machine_engine_lit" },
+    "lit=true,powered=true":   { "model": "machinemod:block/machine_engine_lit" }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.ideomancer.machinemod.mixin",
+  "plugin": "com.ideomancer.machinemod.compat.MixinGate",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "machinemod.refmap.json",
+  "mixins": [
+    "PistonStructureResolverMixin",
+    "PistonBaseBlockMixin",
+    "PistonMovingBlockEntityMixin",
+    "EntityMovementMixin",
+    "LevelSignalMixin",
+    "RedStoneWireBlockMixin",
+    "client.PistonBaseBlockClientMixin"
+  ],
+  "client": [
+    "client.PistonMovingBlockEntityRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

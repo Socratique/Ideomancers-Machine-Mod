@@ -1,0 +1,37 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "indicator": "machinemod:block/machine_indicator",
+    "base": "machinemod:block/machine_conductor",
+    "particle": "machinemod:block/machine_conductor"
+  },
+  "elements": [
+    {
+      "comment": "Inner underlay cuboid — tinted indicator (tintIndex 1), colored by POWER level via color handler",
+      "from": [0.05, 0.05, 0.05],
+      "to": [15.95, 15.95, 15.95],
+      "faces": {
+        "north": { "texture": "#indicator", "tintindex": 1 },
+        "south": { "texture": "#indicator", "tintindex": 1 },
+        "east":  { "texture": "#indicator", "tintindex": 1 },
+        "west":  { "texture": "#indicator", "tintindex": 1 },
+        "up":    { "texture": "#indicator", "tintindex": 1 },
+        "down":  { "texture": "#indicator", "tintindex": 1 }
+      }
+    },
+    {
+      "comment": "Outer shell — machine_conductor texture with a transparent 4x4 indicator window",
+      "from": [0, 0, 0],
+      "to": [16, 16, 16],
+      "faces": {
+        "north": { "texture": "#base", "cullface": "north" },
+        "south": { "texture": "#base", "cullface": "south" },
+        "east":  { "texture": "#base", "cullface": "east" },
+        "west":  { "texture": "#base", "cullface": "west" },
+        "up":    { "texture": "#base", "cullface": "up" },
+        "down":  { "texture": "#base", "cullface": "down" }
+      }
+    }
+  ]
+}

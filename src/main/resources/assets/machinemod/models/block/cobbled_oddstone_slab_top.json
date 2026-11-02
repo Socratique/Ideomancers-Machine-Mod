@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "machinemod:block/cobbled_oddstone",
+    "top": "machinemod:block/cobbled_oddstone",
+    "side": "machinemod:block/cobbled_oddstone"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "machinemod:oddstone"
+  },
+  "result": "machinemod:oddstone_wall",
+  "count": 1
+}

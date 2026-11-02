@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "power=0":  { "model": "machinemod:block/machine_track" },
+    "power=1":  { "model": "machinemod:block/machine_track" },
+    "power=2":  { "model": "machinemod:block/machine_track" },
+    "power=3":  { "model": "machinemod:block/machine_track" },
+    "power=4":  { "model": "machinemod:block/machine_track" },
+    "power=5":  { "model": "machinemod:block/machine_track" },
+    "power=6":  { "model": "machinemod:block/machine_track" },
+    "power=7":  { "model": "machinemod:block/machine_track" },
+    "power=8":  { "model": "machinemod:block/machine_track" },
+    "power=9":  { "model": "machinemod:block/machine_track" },
+    "power=10": { "model": "machinemod:block/machine_track" },
+    "power=11": { "model": "machinemod:block/machine_track" },
+    "power=12": { "model": "machinemod:block/machine_track" },
+    "power=13": { "model": "machinemod:block/machine_track" },
+    "power=14": { "model": "machinemod:block/machine_track" },
+    "power=15": { "model": "machinemod:block/machine_track" }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "type=bottom": { "model": "machinemod:block/cobbled_oddstone_slab" },
+    "type=top": { "model": "machinemod:block/cobbled_oddstone_slab_top" },
+    "type=double": { "model": "machinemod:block/cobbled_oddstone" }
+  }
+}

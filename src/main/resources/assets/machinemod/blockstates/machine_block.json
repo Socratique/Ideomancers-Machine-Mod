@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "powered=false": { "model": "machinemod:block/machine_block" },
+    "powered=true": { "model": "machinemod:block/machine_block_powered" }
+  }
+}

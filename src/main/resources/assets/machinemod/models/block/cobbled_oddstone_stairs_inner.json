@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "machinemod:block/cobbled_oddstone",
+    "top": "machinemod:block/cobbled_oddstone",
+    "side": "machinemod:block/cobbled_oddstone"
+  }
+}

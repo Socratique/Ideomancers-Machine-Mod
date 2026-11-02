@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "machinemod:cobbled_oddstone"
+    }
+  },
+  "result": {
+    "item": "machinemod:cobbled_oddstone_stairs",
+    "count": 4
+  }
+}

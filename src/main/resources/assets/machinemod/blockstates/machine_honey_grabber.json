@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "powered=false": { "model": "machinemod:block/machine_honey_grabber" },
+    "powered=true":  { "model": "machinemod:block/machine_honey_grabber_on" }
+  }
+}

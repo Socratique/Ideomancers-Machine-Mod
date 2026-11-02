@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "active=false,waterlogged=false": { "model": "machinemod:block/copper_frame" },
+    "active=false,waterlogged=true":  { "model": "machinemod:block/copper_frame" },
+    "active=true,waterlogged=false":  { "model": "machinemod:block/copper_frame_active" },
+    "active=true,waterlogged=true":   { "model": "machinemod:block/copper_frame_active" }
+  }
+}

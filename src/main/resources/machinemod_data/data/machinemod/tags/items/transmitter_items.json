@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "machinemod:oddstone",
+    "machinemod:cobbled_oddstone",
+    "machinemod:oddstone_bricks",
+    "machinemod:oddstone_wall",
+    "machinemod:oddstone_stairs",
+    "machinemod:oddstone_slab",
+    "machinemod:cobbled_oddstone_wall",
+    "machinemod:cobbled_oddstone_stairs",
+    "machinemod:cobbled_oddstone_slab",
+    "machinemod:oddstone_brick_wall",
+    "machinemod:oddstone_brick_stairs",
+    "machinemod:oddstone_brick_slab"
+  ]
+}

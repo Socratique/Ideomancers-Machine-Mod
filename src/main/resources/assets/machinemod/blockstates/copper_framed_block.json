@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "active=false": { "model": "machinemod:block/copper_framed_block" },
+    "active=true": { "model": "machinemod:block/copper_framed_block_active" }
+  }
+}

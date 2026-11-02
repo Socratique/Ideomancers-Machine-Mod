@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "filled=false": { "model": "machinemod:block/hollow_stone" },
+    "filled=true": { "model": "machinemod:block/hollow_stone_filled" }
+  }
+}

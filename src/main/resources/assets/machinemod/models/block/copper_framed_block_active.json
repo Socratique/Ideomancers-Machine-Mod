@@ -1,0 +1,7 @@
+{
+  "parent": "machinemod:block/copper_framed_block",
+  "textures": {
+    "frame": "machinemod:block/copper_frame_active",
+    "particle": "machinemod:block/copper_frame_active"
+  }
+}

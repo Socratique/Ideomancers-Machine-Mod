@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "machinemod:cobbled_oddstone"
+  },
+  "result": "machinemod:cobbled_oddstone_slab",
+  "count": 2
+}

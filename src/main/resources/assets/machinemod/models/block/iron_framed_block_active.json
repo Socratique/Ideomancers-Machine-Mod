@@ -1,0 +1,7 @@
+{
+  "parent": "machinemod:block/iron_framed_block",
+  "textures": {
+    "frame": "machinemod:block/iron_frame_active",
+    "particle": "machinemod:block/iron_frame_active"
+  }
+}

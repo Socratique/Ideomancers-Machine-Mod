@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "machinemod:block/machine_piston"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "machinemod:oddstone_wall",
+    "machinemod:cobbled_oddstone_wall",
+    "machinemod:oddstone_brick_wall"
+  ]
+}

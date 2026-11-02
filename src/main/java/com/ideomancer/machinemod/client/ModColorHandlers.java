@@ -1,0 +1,318 @@
+package com.ideomancer.machinemod.client;
+
+import com.ideomancer.machinemod.compat.IdeomodPresence;
+import com.ideomancer.machinemod.Ideomod;
+import com.ideomancer.machinemod.block.machine.FluidType;
+import com.ideomancer.machinemod.block.machine.MachineConductorBlock;
+import com.ideomancer.machinemod.block.machine.MachineFluidPipeBlock;
+import com.ideomancer.machinemod.block.machine.MachineRepeaterBlock;
+import com.ideomancer.machinemod.block.machine.MachineEngineBlock;
+import com.ideomancer.machinemod.block.machine.MachineTrackBlock;
+import com.ideomancer.machinemod.block.machine.MachinePulserBlock;
+import com.ideomancer.machinemod.block.machine.MachineTimerBlock;
+import com.ideomancer.machinemod.block.machine.MachineToggleBlock;
+import com.ideomancer.machinemod.block.machine.MachineTransformerBlock;
+import com.ideomancer.machinemod.block.machine.MachineTransmitterBlock;
+import com.ideomancer.machinemod.block.machine.MachineFrameBlock;
+import com.ideomancer.machinemod.block.machine.MachineFrameBlockEntity;
+import com.ideomancer.machinemod.registry.ModBlocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import com.ideomancer.machinemod.registry.ModItems;
+import net.minecraft.client.renderer.BiomeColors;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterColorHandlersEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+
+/**
+ * Registers block and item color handlers for tintIndex-based coloring.
+ *
+ * Machine Conductor uses tintIndex 1 for its inner underlay cuboid.
+ * The color maps POWER 0-15 to a vanilla-style gradient: dark maroon at 0,
+ * dim red at low power, bright red at 15. Matches vanilla RedStoneWireBlock's
+ * color feel — unpowered components have a visible dark red rather than
+ * pure black.
+ *
+ * Machine Repeater uses tintIndex 1 for its inner underlay cuboid.
+ * Binary: dark maroon when unpowered, bright red (POWER_COLORS[15])
+ * when powered.
+ *
+ * Machine Toggle uses tintIndex 1 for its inner underlay cuboid.
+ * Binary: dark maroon when unpowered, bright red when powered.
+ *
+ * Machine Transformer uses tintIndex 1 for its inner underlay cuboid.
+ * Level-aware: dark maroon when unpowered, POWER_COLORS[outputLevel]
+ * when powered — so a transformer set to level 5 glows dimmer than one
+ * set to 15.
+ *
+ * Machine Timer uses tintIndex 1 for its inner underlay cuboid.
+ * Binary: dark maroon when unpowered, bright red when powered.
+ *
+ * Machine Fluid Pipe uses tintIndex 0 for the water texture inner cuboid.
+ * Vanilla water_still.png is greyscale — the colour handler applies
+ * biome water colour (or default blue) when the pipe holds water.
+ *
+ * Updated by Claude, directed and guided by The Ideomancer.
+ */
+@Mod.EventBusSubscriber(modid = Ideomod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+public class ModColorHandlers {
+
+    /**
+     * Pre-computed color table for power levels 0-15.
+     *
+     * Vanilla-style gradient matching RedStoneWireBlock's color feel:
+     *   0 = dark maroon (visible, not pure black — shading detail shows)
+     *   1-15 = progressively brighter red with subtle warm tones at high power.
+     *
+     * Uses vanilla's approach: even power 0 has a base red component so
+     * unpowered redstone components look like dark red rather than flat black.
+     * Grey shading in indicator textures renders as dark red gradations when
+     * off, bright red gradations when fully powered.
+     */
+    private static final int[] POWER_COLORS = new int[16];
+
+    /** Machine Track indicator: grey ramp, 0x303030 at power 0 to 0xE0E0E0 at 15. */
+    private static final int[] TRACK_GREYS = new int[16];
+
+    static {
+        for (int power = 0; power <= 15; power++) {
+            int v = 0x30 + power * (0xE0 - 0x30) / 15;
+            TRACK_GREYS[power] = (v << 16) | (v << 8) | v;
+        }
+    }
+
+    static {
+        for (int power = 0; power <= 15; power++) {
+            float f = (float) power / 15.0F;
+
+            float r, g, b;
+            if (power == 0) {
+                r = 0.3F;
+                g = 0.0F;
+                b = 0.0F;
+            } else {
+                r = f * 0.6F + 0.4F;
+                g = Math.max(0.0F, f * f * 0.7F - 0.5F);
+                b = Math.max(0.0F, f * f * 0.6F - 0.7F);
+            }
+
+            int ri = Math.min(255, (int) (r * 255.0F));
+            int gi = Math.min(255, (int) (g * 255.0F));
+            int bi = Math.min(255, (int) (b * 255.0F));
+            POWER_COLORS[power] = (ri << 16) | (gi << 8) | bi;
+        }
+    }
+
+    /** Multiplies the iron nugget's greys into copper oranges (blue kept low so it doesn't turn pink). */
+    private static final int COPPER_NUGGET_TINT = 0xFF8C5A;
+
+    @SubscribeEvent
+    public static void registerBlockColors(RegisterColorHandlersEvent.Block event) {
+        if (IdeomodPresence.STEP_ASIDE) return;
+        // Machine Conductor: tintIndex 0 = no tint (base texture as-is)
+        //                    tintIndex 1 = inner underlay cuboid (power indicator)
+        event.register((state, level, pos, tintIndex) -> {
+            if (tintIndex == 1) {
+                int power = state.getValue(MachineConductorBlock.POWER);
+                return POWER_COLORS[power];
+            }
+            return 0xFFFFFF;
+        }, ModBlocks.MACHINE_CONDUCTOR.get());
+
+        // Machine Base: only the powered model has an indicator (tintIndex 1), seen
+        // through the hole in the Ideomancer's inactive texture: full red, like a Repeater that's on.
+        event.register((state, level, pos, tintIndex) -> {
+            if (tintIndex == 1) {
+                return state.getValue(MachineFrameBlock.POWERED) ? POWER_COLORS[15] : POWER_COLORS[0];
+            }
+            return 0xFFFFFF;
+        }, ModBlocks.MACHINE_BLOCK.get());
+
+        // Machine Repeater: tintIndex 1 on inner underlay cuboid.
+        // Binary: off = dark maroon, on = full bright red.
+        event.register((state, level, pos, tintIndex) -> {
+            if (tintIndex == 1) {
+                return state.getValue(MachineRepeaterBlock.POWERED)
+                        ? POWER_COLORS[15] : POWER_COLORS[0];
+            }
+            return 0xFFFFFF;
+        }, ModBlocks.MACHINE_REPEATER.get());
+
+        // Machine Toggle: tintIndex 1 on inner underlay cuboid.
+        // Binary: off = dark maroon, on = bright red.
+        event.register((state, level, pos, tintIndex) -> {
+            if (tintIndex == 1) {
+                return state.getValue(MachineToggleBlock.POWERED)
+                        ? POWER_COLORS[15] : POWER_COLORS[0];
+            }
+            return 0xFFFFFF;
+        }, ModBlocks.MACHINE_TOGGLE.get());
+
+        // Machine Transformer: tintIndex 1 on inner underlay cuboid.
+        // Level-aware: off = dark maroon, on = POWER_COLORS[outputLevel].
+        event.register((state, level, pos, tintIndex) -> {
+            if (tintIndex == 1) {
+                if (state.getValue(MachineTransformerBlock.POWERED)) {
+                    int outputLevel = state.getValue(MachineTransformerBlock.OUTPUT_LEVEL);
+                    return POWER_COLORS[outputLevel];
+                }
+                return POWER_COLORS[0];
+            }
+            return 0xFFFFFF;
+        }, ModBlocks.MACHINE_TRANSFORMER.get());
+
+        // Machine Timer: tintIndex 1 on inner underlay cuboid.
+        // Binary: off = dark maroon, on = bright red.
+        event.register((state, level, pos, tintIndex) -> {
+            if (tintIndex == 1) {
+                return state.getValue(MachineTimerBlock.POWERED)
+                        ? POWER_COLORS[15] : POWER_COLORS[0];
+            }
+            return 0xFFFFFF;
+        }, ModBlocks.MACHINE_TIMER.get());
+
+        // Machine Pulser: tintIndex 1 on inner underlay cuboid.
+        // Binary: off = dark maroon, on = bright red.
+        event.register((state, level, pos, tintIndex) -> {
+            if (tintIndex == 1) {
+                return state.getValue(MachinePulserBlock.POWERED)
+                        ? POWER_COLORS[15] : POWER_COLORS[0];
+            }
+            return 0xFFFFFF;
+        }, ModBlocks.MACHINE_PULSER.get());
+
+        // Machine Engine: tintIndex 1 on inner underlay cuboid.
+        // Binary: off = dark maroon, on = bright red (pulsing).
+        event.register((state, level, pos, tintIndex) -> {
+            if (tintIndex == 1) {
+                return state.getValue(MachineEngineBlock.POWERED)
+                        ? POWER_COLORS[15] : POWER_COLORS[0];
+            }
+            return 0xFFFFFF;
+        }, ModBlocks.MACHINE_ENGINE.get());
+
+        // Machine Transmitter: tintIndex 1 on inner underlay cuboid.
+        // Level-aware: reads signal strength from block entity so the
+        // indicator tint reflects actual signal strength (source or receiver).
+        event.register((state, level, pos, tintIndex) -> {
+            if (tintIndex == 1) {
+                if (level != null && pos != null) {
+                    BlockEntity be = level.getBlockEntity(pos);
+                    if (be instanceof MachineFrameBlockEntity machineBE) {
+                        return POWER_COLORS[machineBE.getTransmitterSignalStrength()];
+                    }
+                }
+                return POWER_COLORS[0];
+            }
+            return 0xFFFFFF;
+        }, ModBlocks.MACHINE_TRANSMITTER.get());
+
+        // Machine Track: tintIndex 1 on inner underlay cuboid, GREY by POWER
+        // (dark at 0, near-white at 15). Grey, not red: Track power is the
+        // Track's own signal, invisible to vanilla redstone, and fades by 1 per
+        // Track, so a pulse shows moving along a line.
+        event.register((state, level, pos, tintIndex) -> {
+            if (tintIndex == 1) {
+                return TRACK_GREYS[state.getValue(MachineTrackBlock.POWER)];
+            }
+            return 0xFFFFFF;
+        }, ModBlocks.MACHINE_TRACK.get());
+
+        // Machine Fluid Pipe: tintIndex 0 on inner cuboid faces.
+        event.register((state, level, pos, tintIndex) -> {
+            if (tintIndex == 0 && state.getValue(MachineFluidPipeBlock.FLUID_TYPE) == FluidType.WATER) {
+                if (level != null && pos != null) {
+                    return BiomeColors.getAverageWaterColor(level, pos);
+                }
+                return 0x3F76E4;
+            }
+            return 0xFFFFFF;
+        }, ModBlocks.MACHINE_FLUID_PIPE.get());
+    }
+
+    @SubscribeEvent
+    public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
+        if (IdeomodPresence.STEP_ASIDE) return;
+        // Copper Nugget: vanilla's iron nugget texture tinted copper (1.20.1 has no
+        // copper nugget texture, and Mojang's art can't be shipped in the mod)
+        event.register((stack, tintIndex) -> tintIndex == 0 ? COPPER_NUGGET_TINT : 0xFFFFFF,
+                ModItems.COPPER_NUGGET.get());
+
+        // Machine Conductor item: show unpowered (dark maroon)
+        event.register((stack, tintIndex) -> {
+            if (tintIndex == 1) {
+                return POWER_COLORS[0];
+            }
+            return 0xFFFFFF;
+        }, ModBlocks.MACHINE_CONDUCTOR.get().asItem());
+
+        // Machine Repeater item: show unpowered (dark maroon)
+        event.register((stack, tintIndex) -> {
+            if (tintIndex == 1) {
+                return POWER_COLORS[0];
+            }
+            return 0xFFFFFF;
+        }, ModItems.MACHINE_REPEATER.get());
+
+        // Machine Toggle item: show unpowered (dark maroon)
+        event.register((stack, tintIndex) -> {
+            if (tintIndex == 1) {
+                return POWER_COLORS[0];
+            }
+            return 0xFFFFFF;
+        }, ModItems.MACHINE_TOGGLE.get());
+
+        // Machine Transformer item: show unpowered (dark maroon)
+        event.register((stack, tintIndex) -> {
+            if (tintIndex == 1) {
+                return POWER_COLORS[0];
+            }
+            return 0xFFFFFF;
+        }, ModItems.MACHINE_TRANSFORMER.get());
+
+        // Machine Timer item: show unpowered (dark maroon)
+        event.register((stack, tintIndex) -> {
+            if (tintIndex == 1) {
+                return POWER_COLORS[0];
+            }
+            return 0xFFFFFF;
+        }, ModItems.MACHINE_TIMER.get());
+
+        // Machine Pulser item: show unpowered (dark maroon)
+        event.register((stack, tintIndex) -> {
+            if (tintIndex == 1) {
+                return POWER_COLORS[0];
+            }
+            return 0xFFFFFF;
+        }, ModItems.MACHINE_PULSER.get());
+
+        // Machine Engine item: show unpowered (dark maroon)
+        event.register((stack, tintIndex) -> {
+            if (tintIndex == 1) {
+                return POWER_COLORS[0];
+            }
+            return 0xFFFFFF;
+        }, ModItems.MACHINE_ENGINE.get());
+
+        // Machine Transmitter item: show unpowered (dark maroon)
+        event.register((stack, tintIndex) -> {
+            if (tintIndex == 1) {
+                return POWER_COLORS[0];
+            }
+            return 0xFFFFFF;
+        }, ModItems.MACHINE_TRANSMITTER.get());
+
+        // Machine Fluid Pipe item: no tint needed
+        event.register((stack, tintIndex) -> {
+            return 0xFFFFFF;
+        }, ModBlocks.MACHINE_FLUID_PIPE.get().asItem());
+
+        // Machine Track item: show unpowered (dark grey)
+        event.register((stack, tintIndex) -> {
+            if (tintIndex == 1) {
+                return TRACK_GREYS[0];
+            }
+            return 0xFFFFFF;
+        }, ModItems.MACHINE_TRACK.get());
+    }
+}
