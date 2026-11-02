@@ -539,6 +539,7 @@ public class IdeomodConfig {
         affectedMobs.add("minecraft:fox");
         affectedMobs.add("minecraft:frog");
         affectedMobs.add("minecraft:horse");
+        affectedMobs.add("minecraft:zombie_horse");
         affectedMobs.add("minecraft:mooshroom");
         affectedMobs.add("minecraft:mule");
         affectedMobs.add("minecraft:ocelot");
@@ -577,6 +578,7 @@ public class IdeomodConfig {
         affectedMobs.add("minecraft:elder_guardian");
         affectedMobs.add("minecraft:endermite");
         affectedMobs.add("minecraft:evoker");
+        affectedMobs.add("minecraft:illusioner");
         affectedMobs.add("minecraft:guardian");
         affectedMobs.add("minecraft:hoglin");
         affectedMobs.add("minecraft:husk");
