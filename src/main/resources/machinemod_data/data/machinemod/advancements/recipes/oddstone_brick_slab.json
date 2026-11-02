@@ -1,0 +1,47 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_oddstone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "machinemod:oddstone"
+            ]
+          }
+        ]
+      }
+    },
+    "has_oddstone_bricks": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "machinemod:oddstone_bricks"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "machinemod:oddstone_brick_slab"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_oddstone",
+      "has_oddstone_bricks",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "machinemod:oddstone_brick_slab"
+    ]
+  }
+}

@@ -1,15 +1,27 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "pattern": [
     "CCC",
     "RPO",
     "CCC"
   ],
   "key": {
-    "C": { "item": "machinemod:cobbled_oddstone" },
-    "R": { "item": "minecraft:redstone" },
-    "P": { "item": "minecraft:piston" },
-    "O": { "item": "machinemod:oddstone" }
+    "C": {
+      "item": "machinemod:cobbled_oddstone"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "P": {
+      "item": "minecraft:piston"
+    },
+    "O": {
+      "item": "machinemod:oddstone"
+    }
   },
-  "result": { "item": "machinemod:oddstone_repulser", "count": 1 }
+  "result": {
+    "item": "machinemod:oddstone_repulser",
+    "count": 1
+  }
 }

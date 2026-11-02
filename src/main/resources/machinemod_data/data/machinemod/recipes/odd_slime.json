@@ -1,13 +1,21 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "pattern": [
     "SSS",
     "SOS",
     "SSS"
   ],
   "key": {
-    "S": { "item": "minecraft:slime_ball" },
-    "O": { "item": "machinemod:oddstone" }
+    "S": {
+      "item": "minecraft:slime_ball"
+    },
+    "O": {
+      "item": "machinemod:oddstone"
+    }
   },
-  "result": { "item": "machinemod:odd_slime", "count": 1 }
+  "result": {
+    "item": "machinemod:odd_slime",
+    "count": 1
+  }
 }

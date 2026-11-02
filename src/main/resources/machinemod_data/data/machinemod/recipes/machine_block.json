@@ -1,15 +1,27 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "pattern": [
     "IRI",
     "CHC",
     "IRI"
   ],
   "key": {
-    "I": { "item": "minecraft:iron_ingot" },
-    "R": { "item": "minecraft:redstone" },
-    "C": { "item": "minecraft:copper_ingot" },
-    "H": { "item": "machinemod:hollow_stone" }
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "H": {
+      "item": "machinemod:hollow_stone"
+    }
   },
-  "result": { "item": "machinemod:machine_block", "count": 1 }
+  "result": {
+    "item": "machinemod:machine_block",
+    "count": 1
+  }
 }

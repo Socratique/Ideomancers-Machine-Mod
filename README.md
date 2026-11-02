@@ -406,6 +406,8 @@ Slime and honey blocks behave as in vanilla, except that they cannot grab Oddsto
 
 ## Recipes
 
+Recipes appear in the recipe book as you pick up what they need: Oddstone unlocks the Oddstone blocks, Odd Slime, the Repulser and Attractor; Hollowstone unlocks the Machine Base; a Hollowstone Shard unlocks Hollowstone; iron and copper unlock their frames. Framed blocks (any frame plus a block) are not listed in the book.
+
 Pictures drawn in the 1.20.1 crafting windows by `tools/renders/recipes.py`, straight from the recipe files.
 
 ### Machines, frames and tools
