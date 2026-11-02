@@ -1,7 +1,5 @@
 # Ideomancer's Machine Mod
 
-**Stone that moves when its neighbours do. Redstone that rides along. Portals with an address.**
-
 A Minecraft Forge 1.20.1 mod about moving blocks and flying machines: Oddstone and sympathetic movement, Odd Slime,
 the Repulser and Attractor, Oddstone portals, Hollowstone, the Machine Base and all its machines, Frames and Framed
 Blocks, the Redstone Rod and the Drill.
