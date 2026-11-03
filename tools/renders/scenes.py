@@ -556,7 +556,7 @@ CATALOGUE = [
     ("Machine Pulser", "pulser", {"on": True}), ("Slime Grabber", "grabber", {"on": True}),
     ("Honey Grabber", "grabber", {"variant": "honey", "on": True}), ("Machine Transmitter", "transmitter", {"power": 12}),
     ("Machine Pipe", "pipe", {}), ("Machine Fluid Pipe", "fluid_pipe", {"fluid": "water"}),
-    ("Machine Piston", "machine_piston", {"arms": {"up": 1.0}}), ("Machine Sticky Piston", "machine_piston", {"sticky": True}),
+    ("Machine Piston", "machine_piston", {}), ("Machine Sticky Piston", "machine_piston", {"sticky": True}),
     ("Machine Brace", "brace", {}), ("Drill", "drill", {"facing": "south"}),
 ]
 
@@ -569,7 +569,7 @@ def catalogue(tx, path):
     f = font(13)
     for i, (name, kind, props) in enumerate(CATALOGUE):
         r = Renderer(tx, cw, 118, tile=72, origin=(0, 0))
-        px, py = r.proj((0.5, 0.45 if kind != "machine_piston" or not props.get("arms") else 0.9, 0.5))
+        px, py = r.proj((0.5, 0.45, 0.5))
         r.ox, r.oy = cw - px, 118 - py
         dr = [((0, 0, 0), faces, see, 1.0, sum(c)) for faces, see, c in MODELS[kind](props)]
         cell = r.render(dr)
