@@ -113,7 +113,8 @@ public class Ideomod {
                 (grabber, target) -> {
                     boolean targetIsOddstone = target.getBlock() instanceof OddstoneBlock
                             || target.getBlock() instanceof com.ideomancer.machinemod.block.CobbledOddstoneBlock
-                            || target.getBlock() instanceof com.ideomancer.machinemod.block.OddstoneBricksBlock;
+                            || target.getBlock() instanceof com.ideomancer.machinemod.block.OddstoneBricksBlock
+                            || target.getBlock() instanceof com.ideomancer.machinemod.block.ISympathetic; // walls, stairs, slabs
                     boolean targetIsFramedOddstone = StickinessRules.isFramedOddstone(target);
                     if (!targetIsOddstone && !targetIsFramedOddstone) return false;
 

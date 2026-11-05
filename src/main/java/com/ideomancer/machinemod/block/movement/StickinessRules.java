@@ -158,6 +158,7 @@ public class StickinessRules {
         if (state.getBlock() instanceof OddstoneBlock) return true;
         if (state.getBlock() instanceof com.ideomancer.machinemod.block.CobbledOddstoneBlock) return true;
         if (state.getBlock() instanceof com.ideomancer.machinemod.block.OddstoneBricksBlock) return true;
+        if (state.getBlock() instanceof com.ideomancer.machinemod.block.ISympathetic) return true; // walls, stairs, slabs
         if (state.getBlock() instanceof FramedBlock) {
             return state.getValue(FramedBlock.INNER_STICKY) == FramedBlock.STICKY_ODDSTONE;
         }
