@@ -1,5 +1,6 @@
 package com.ideomancer.machinemod.block.piston;
 
+import com.ideomancer.machinemod.block.ISympathetic;
 import com.ideomancer.machinemod.block.frame.FramedBlock;
 import com.ideomancer.machinemod.block.movement.StickyType;
 import com.ideomancer.machinemod.config.IdeomodConfig;
@@ -119,20 +120,16 @@ public class RangedPistonUtil {
     // ========================================================================
 
     /**
-     * Matches Oddstone blocks -- both bare OddstoneBlock AND Framed Oddstone
-     * (FramedBlock with INNER_STICKY == StickyType.ODDSTONE).
+     * Matches every Oddstone block: the three full blocks (Oddstone, Cobbled Oddstone,
+     * Oddstone Bricks) and their walls, stairs and slabs -- every block with a sympathetic
+     * channel -- plus any Framed Oddstone (a FramedBlock whose INNER_STICKY is ODDSTONE,
+     * which covers framed Cobbled Oddstone and framed Oddstone Bricks too).
      *
-     * Used by Oddstone Repulser/Attractor.
-     *
-     * Previously only checked state.is(ModBlocks.ODDSTONE.get()),
-     * which missed Framed Oddstone entirely. Framed Oddstone is a FramedBlock
-     * instance whose INNER_STICKY blockstate property equals StickyType.ODDSTONE
-     * (value 4). Now checks both cases.
+     * Used by Oddstone Repulser/Attractor (and the odd force beam that shows their reach).
+     * Ideomancer, 2026-11-05: the Repulser and Attractor act on all Oddstone variants.
      */
     public static final Predicate<BlockState> ODDSTONE_ONLY = state -> {
-        // Case 1: bare Oddstone block
-        if (state.is(ModBlocks.ODDSTONE.get())) return true;
-        // Case 2: Framed Oddstone (FramedBlock with INNER_STICKY = ODDSTONE)
+        if (state.getBlock() instanceof ISympathetic) return true;
         if (state.getBlock() instanceof FramedBlock) {
             return state.getValue(FramedBlock.INNER_STICKY) == StickyType.ODDSTONE.ordinal();
         }
