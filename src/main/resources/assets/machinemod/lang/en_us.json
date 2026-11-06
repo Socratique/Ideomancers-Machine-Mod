@@ -1,5 +1,4 @@
 {
-  "block.machinemod.drill": "Drill",
   "block.machinemod.oddstone": "Oddstone",
   "block.machinemod.machine_block": "Machine Base",
   "block.machinemod.oddstone_portal": "Oddstone Portal",
@@ -22,6 +21,7 @@
   "block.machinemod.machine_sticky_piston": "Machine Sticky Piston",
   "block.machinemod.machine_piston_head": "Machine Piston Head",
   "block.machinemod.machine_brace": "Machine Brace",
+  "block.machinemod.machine_drill": "Machine Drill",
   "block.machinemod.machine_repeater": "Machine Repeater",
   "block.machinemod.machine_toggle": "Machine Toggle",
   "block.machinemod.machine_transformer": "Machine Transformer",

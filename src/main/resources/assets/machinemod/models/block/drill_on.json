@@ -1,9 +1,0 @@
-{
-  "parent": "minecraft:block/orientable_with_bottom",
-  "textures": {
-    "top": "machinemod:block/drill_top",
-    "bottom": "machinemod:block/drill_back",
-    "side": "machinemod:block/drill_side",
-    "front": "machinemod:block/drill_front_on"
-  }
-}
