@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "machinemod:machine_drill",
+    "machinemod:machine_storage",
     "machinemod:oddstone",
     "machinemod:machine_block",
     "machinemod:oddstone_repulser",

@@ -247,6 +247,7 @@ MODELS = {
     "trolley": lambda p: cube("machine_trolley"),
     "brace": lambda p: cube("machine_extender"),
     "machine_drill": lambda p: cube("machine_drill"),
+    "machine_storage": lambda p: cube("machine_storage"),
     "conductor": lambda p: indicator("machine_conductor", p.get("power", 0)),
     "repeater": lambda p: indicator("machine_repeater_%d" % p.get("delay", 1), 15 if p.get("on") else 0),
     "toggle": toggle,
