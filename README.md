@@ -19,7 +19,7 @@ The intro and disclaimers below are the Ideomancer's, written for Ideomod.
 ### Disclaimers
 
 - The implementation and development of this mod was almost entirely handled and written by Claude, directed by me.
-- Almost all textures were made by me, influenced by some vanilla textures. The Oddstone, Cobbled Oddstone, Oddstone Bricks and Odd Slime textures, and the Odd Slime model, were commissioned from Lorenzo N. ([napino](https://linktr.ee/napino)), via Fiverr. The Machine Storage texture is a placeholder made by Claude, as was the animated Oddstone portal texture; the Repulser and Attractor were moved onto the Oddstone texture by Claude, keeping my original designs.
+- Almost all textures were made by me, influenced by some vanilla textures. The Oddstone, Cobbled Oddstone, Oddstone Bricks and Odd Slime textures, and the Odd Slime model, were commissioned from Lorenzo N. ([napino](https://linktr.ee/napino)), via Fiverr. The animated Oddstone portal texture was made by Claude; the Repulser and Attractor were moved onto the Oddstone texture by Claude, keeping my original designs.
 - This Repo was put together by Claude. The intro and Disclaimers were written by me.
 
 ## Status and download
@@ -200,7 +200,7 @@ The GUI changes with the item in the slot. Most machine blocks show only the slo
 | Sticky Piston | [Machine Sticky Piston](#machine-piston-and-sticky-piston) |
 | Machine Base | [Machine Brace](#brace) |
 | Any pickaxe | [Machine Drill](#machine-drill) |
-| Chest or barrel | [Machine Storage](#machine-storage) |
+| Barrel | [Machine Storage](#machine-storage) |
 | Powered Rail | [Machine Track](#track-and-trolley) |
 | Minecart | [Machine Trolley](#track-and-trolley) |
 | Slime Block | [Machine Slime Grabber](#grabbers) |
@@ -341,7 +341,7 @@ Passes items along, one at a time, at hopper speed.
 
 #### Machine Storage
 
-A Machine Base with a chest or barrel in its slot. It holds nine stacks in a 3×3 grid and, unlike a vanilla chest, moves with its contents when a piston or other mover pushes it.
+A Machine Base with a barrel in its slot. It holds nine stacks in a 3×3 grid and, unlike a vanilla chest, moves with its contents when a piston or other mover pushes it.
 
 - **Each pulse pushes out one item.** A signal turning on, on any face, sends one item out. Holding the signal sends no more; a Pulser or Timer gives a stream.
 - It takes items from the first slot that holds something the output will accept.
@@ -349,7 +349,7 @@ A Machine Base with a chest or barrel in its slot. It holds nine stacks in a 3×
 - **It never pushes to a face that has given it items,** so a pipe feeding it is not fed back. Items put in by hand don't count. It forgets a face once nothing that holds items is left there.
 - Hoppers and pipes can feed it from any side. A hopper directly below it will drain it, as with a chest.
 - A comparator reads how full it is, as with a chest.
-- Broken, it spills what it holds. Taking the chest or barrel out turns it back into a Machine Base and drops the contents.
+- Broken, it spills what it holds. Taking the barrel out turns it back into a Machine Base and drops the contents.
 
 #### Fluid Pipe
 
