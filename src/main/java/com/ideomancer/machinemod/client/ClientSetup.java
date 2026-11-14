@@ -42,6 +42,14 @@ public final class ClientSetup {
 
     private ClientSetup() {}
 
+    /** The Machine Seat's seat is invisible: the block is what you see. */
+    @SubscribeEvent
+    public static void onRegisterRenderers(final net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers event) {
+        if (IdeomodPresence.STEP_ASIDE) return;
+        event.registerEntityRenderer(com.ideomancer.machinemod.registry.ModEntities.MACHINE_SEAT.get(),
+                net.minecraft.client.renderer.entity.NoopRenderer::new);
+    }
+
     @SubscribeEvent
     public static void onClientSetup(final FMLClientSetupEvent event) {
         if (IdeomodPresence.STEP_ASIDE) return;

@@ -23,6 +23,8 @@
   "block.machinemod.machine_brace": "Machine Brace",
   "block.machinemod.machine_drill": "Machine Drill",
   "block.machinemod.machine_storage": "Machine Storage",
+  "block.machinemod.machine_seat": "Machine Seat",
+  "entity.machinemod.machine_seat": "Machine Seat",
   "block.machinemod.machine_repeater": "Machine Repeater",
   "block.machinemod.machine_toggle": "Machine Toggle",
   "block.machinemod.machine_transformer": "Machine Transformer",
