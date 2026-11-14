@@ -218,6 +218,16 @@ def portal(p):
     return [(box(6, 0, 0, 10, 16, 16, tex, tint=tint, uv=(0, 0, 16, 16), faces=("east", "west")), True, C)]
 
 
+def machine_seat(p):
+    """Machine Seat: a 4 px floor and four 2 px walls, open on top (models/block/machine_seat.json)."""
+    S, B = "machine_seat_side", "machine_seat_bottom"
+    return [(box(0, 0, 0, 16, 4, 16, {"up": B, "down": B, "side": S}), False, (0.5, 0.125, 0.5)),
+            (box(0, 4, 0, 16, 16, 2, S), False, (0.5, 0.625, 0.0625)),
+            (box(0, 4, 2, 2, 16, 14, S), False, (0.0625, 0.625, 0.5)),
+            (box(0, 4, 14, 16, 16, 16, S), False, (0.5, 0.625, 0.9375)),
+            (box(14, 4, 2, 16, 16, 14, S), False, (0.9375, 0.625, 0.5))]
+
+
 MODELS = {
     # vanilla
     "stone": lambda p: cube("mc:stone"),
@@ -248,6 +258,7 @@ MODELS = {
     "brace": lambda p: cube("machine_extender"),
     "machine_drill": lambda p: cube("machine_drill"),
     "machine_storage": lambda p: cube("machine_storage"),
+    "machine_seat": machine_seat,
     "conductor": lambda p: indicator("machine_conductor", p.get("power", 0)),
     "repeater": lambda p: indicator("machine_repeater_%d" % p.get("delay", 1), 15 if p.get("on") else 0),
     "toggle": toggle,
