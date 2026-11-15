@@ -332,6 +332,8 @@ A Machine Base with a pickaxe in its slot. Like the Machine Piston it has no fro
 
 A Machine Base with a boat or raft in its slot (not a chest boat). A block with an open top that you sit in, to drive a machine from inside it.
 
+Video: [an omnidirectional flying machine, steered from a Machine Seat](https://www.youtube.com/watch?v=yWvFrCX8fyo).
+
 - **Right-click to sit in it.** Sneak to get out: you step out beside it, forward first, as out of a boat. With every side blocked, you stand up inside it.
 - **Sneak + right-click** with an empty hand opens the slot, to take the boat out.
 - **The move keys send a redstone pulse out of the face they point to,** relative to where you look: forward out of the face you look toward, back out of the face behind you, left and right out of the sides. Up and down looks don't count, only the direction you face.
