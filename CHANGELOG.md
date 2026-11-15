@@ -35,6 +35,10 @@ Details of every feature are in the [README](README.md).
   its channel's receivers switched on. They now switch off.
 - `timer.default_index` in the config had no effect: new Timers always started at 20 ticks. New
   Timers now start at the configured default; Timers already placed keep their setting.
+- A portal with copper corners closed itself when a corner oxidised. Copper now counts as copper at
+  any stage of oxidation, waxed or not, both for lighting and for the address.
+- Breaking Oddstone that was only placed against a portal's face (not part of its frame) closed the
+  portal. Only frame blocks close it now.
 
 ### Changed
 
