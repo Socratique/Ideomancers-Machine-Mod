@@ -109,13 +109,13 @@ public abstract class PistonBaseBlockClientMixin {
         }
 
         // Remove piston head before resolver (mirrors server-side fix).
-        // Uses level.removeBlock to exactly match vanilla's call in moveBlocks.
+        // Removed as vanilla's moveBlocks does it (setBlock AIR, flag 20: no updates).
         // See PistonBaseBlockMixin.saveForRetraction for full explanation.
         BlockPos headPos = pistonPos.relative(direction);
         BlockState headState = level.getBlockState(headPos);
         boolean removedHead = false;
         if (headState.getBlock() instanceof PistonHeadBlock) {
-            level.removeBlock(headPos, false);
+            level.setBlock(headPos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 20);
             removedHead = true;
         }
 
@@ -125,7 +125,7 @@ public abstract class PistonBaseBlockClientMixin {
 
         if (!resolver.resolve()) {
             if (removedHead) {
-                level.setBlock(headPos, headState, 3);
+                level.setBlock(headPos, headState, 20);
             }
             return 0;
         }

@@ -52,6 +52,11 @@ Details of every feature are in the [README](README.md).
 - Machine settings (Repeater delay, Transformer level, Timer and Engine intervals) could be changed by a
   player who didn't have the machine's menu open, or by a spectator. Only the open menu changes them now.
 - Leaving a single-player world kept part of it in memory until the game closed.
+- Every sticky-piston pull (with or without this mod's blocks) gave the blocks beside the piston head
+  an extra update that vanilla doesn't, which observers and update-detector builds could see. Pulls now
+  behave exactly as vanilla.
+- The Machine Sticky Piston could pull Oddstone directly, which a vanilla sticky piston can't. It no
+  longer does (Oddstone dragged along by a pulled group still moves).
 
 ### Changed
 
