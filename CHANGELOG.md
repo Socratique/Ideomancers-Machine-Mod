@@ -24,6 +24,10 @@ Details of every feature are in the [README](README.md).
   slab, a frame, a chest). It now only takes real water and lava source blocks.
 - A Fluid Pipe could place water in the Nether. Its water now dries up there with a hiss and smoke, as
   from a bucket.
+- Walking on a Framed Redstone Ore turned it into plain redstone ore, losing the frame. It now stays
+  framed (and doesn't light up when stepped on).
+- A framed block or Hollowstone with a malformed inner block id (only possible through commands)
+  crashed every client that drew it. It now counts as empty.
 
 ## 0.1.0 (2026-11-15) — Alpha
 
