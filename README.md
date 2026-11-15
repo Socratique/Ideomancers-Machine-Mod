@@ -25,9 +25,10 @@ The intro and disclaimers below are the Ideomancer's, written for Ideomod.
 ## Status and download
 
 **Work in progress.** Things will change, and some parts are rough (see [Known rough edges](#known-rough-edges)).
-There is no release yet: one will be on this repository's Releases page and on CurseForge. Until then, build it
-yourself ([Building and running](#building-and-running)) and put the jar in the `mods` folder of a Minecraft 1.20.1
-Forge install. It is needed on both the client and the server.
+
+**Download:** [the latest jar](https://github.com/Socratique/Ideomancers-Machine-Mod/releases/latest) from this
+repository's Releases page (CurseForge to follow). Put it in the `mods` folder of a Minecraft 1.20.1 Forge install.
+It is needed on both the client and the server. To build it yourself, see [Building and running](#building-and-running).
 
 | | |
 |---|---|
