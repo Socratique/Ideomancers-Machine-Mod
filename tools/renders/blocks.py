@@ -219,13 +219,15 @@ def portal(p):
 
 
 def machine_seat(p):
-    """Machine Seat: a 4 px floor and four 2 px walls, open on top (models/block/machine_seat.json)."""
-    S, B = "machine_seat_side", "machine_seat_bottom"
-    return [(box(0, 0, 0, 16, 4, 16, {"up": B, "down": B, "side": S}), False, (0.5, 0.125, 0.5)),
-            (box(0, 4, 0, 16, 16, 2, S), False, (0.5, 0.625, 0.0625)),
-            (box(0, 4, 2, 2, 16, 14, S), False, (0.0625, 0.625, 0.5)),
-            (box(0, 4, 14, 16, 16, 16, S), False, (0.5, 0.625, 0.9375)),
-            (box(14, 4, 2, 16, 16, 14, S), False, (0.9375, 0.625, 0.5))]
+    """Machine Seat: a 4 px floor and four 2 px walls, open on top (models/block/machine_seat.json).
+    Sides and inner walls: side; underside: bottom; inside floor and top rim: inside."""
+    S, B, I = "machine_seat_side", "machine_seat_bottom", "machine_seat_inside"
+    wall = {"up": I, "side": S}
+    return [(box(0, 0, 0, 16, 4, 16, {"up": I, "down": B, "side": S}), False, (0.5, 0.125, 0.5)),
+            (box(0, 4, 0, 16, 16, 2, wall), False, (0.5, 0.625, 0.0625)),
+            (box(0, 4, 2, 2, 16, 14, wall), False, (0.0625, 0.625, 0.5)),
+            (box(0, 4, 14, 16, 16, 16, wall), False, (0.5, 0.625, 0.9375)),
+            (box(14, 4, 2, 16, 16, 14, wall), False, (0.9375, 0.625, 0.5))]
 
 
 MODELS = {
