@@ -31,9 +31,16 @@ Details of every feature are in the [README](README.md).
 - A filled Hollowstone mined with a pickaxe dropped no shards (the block inside was put back before
   the drops). It now drops its shards and leaves the block inside standing. Broken with Silk Touch on a
   tool that can't harvest it (a shovel), it no longer destroys the block inside.
+- Taking the Oddstone out of a powered source Transmitter through its GUI (or with shift-click) left
+  its channel's receivers switched on. They now switch off.
+- `timer.default_index` in the config had no effect: new Timers always started at 20 ticks. New
+  Timers now start at the configured default; Timers already placed keep their setting.
 
 ### Changed
 
+- Hoppers no longer take the item out of a machine (a hopper under a Machine Drill used to take its
+  pickaxe, turning it back into a Machine Base). They can still put the item into an empty Machine
+  Base, and still take from a Machine Storage's or Pipe's own slots.
 - Fortune on Hollowstone gives at most 9 shards, the number that crafts one Hollowstone (it averaged
   12 with Fortune III, up to 28).
 
