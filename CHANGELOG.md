@@ -11,6 +11,8 @@ Details of every feature are in the [README](README.md).
 - A machine block caught mid-move when the world was saved and closed (or its chunk unloaded) landed
   empty: Machine Storage contents, Engine fuel, the slot item and settings were lost. The moving block
   now carries them in the save.
+- A machine or framed block pushed up out of the top of the world, or down out of the bottom, was
+  deleted with its contents. It now refuses to move there, as any vanilla block does.
 
 ## 0.1.0 (2026-11-15) — Alpha
 
