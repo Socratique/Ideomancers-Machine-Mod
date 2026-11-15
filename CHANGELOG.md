@@ -6,7 +6,11 @@ Details of every feature are in the [README](README.md).
 
 ## Unreleased
 
-Nothing yet.
+### Fixed
+
+- A machine block caught mid-move when the world was saved and closed (or its chunk unloaded) landed
+  empty: Machine Storage contents, Engine fuel, the slot item and settings were lost. The moving block
+  now carries them in the save.
 
 ## 0.1.0 (2026-11-15) — Alpha
 

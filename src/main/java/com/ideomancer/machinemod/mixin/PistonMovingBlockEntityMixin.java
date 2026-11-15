@@ -3,14 +3,17 @@ package com.ideomancer.machinemod.mixin;
 import com.ideomancer.machinemod.Ideomod;
 import com.ideomancer.machinemod.block.movement.IPistonMovable;
 import com.ideomancer.machinemod.block.movement.MovingBlockEntityData;
+import com.ideomancer.machinemod.block.movement.MovingDataHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -38,10 +41,52 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * block entity is created, so even if it retrieves data, there's no block entity
  * to load it into. This was the cause of the original "item deleted on move" bug.
  *
+ * SAVED COPY (2026-11-15): the moving block also writes the waiting data into its own NBT
+ * (saveAdditional) and reads it back (load). MovingBlockEntityData lives only in memory, so
+ * without this a world saved and closed mid-move, or a chunk unloaded mid-move, landed the
+ * block with an empty block entity (items, fuel and settings lost). The in-memory copy is
+ * still used first; the saved copy is the fallback.
+ *
  * Written by Claude, directed and guided by The Ideomancer.
  */
 @Mixin(PistonMovingBlockEntity.class)
-public abstract class PistonMovingBlockEntityMixin {
+public abstract class PistonMovingBlockEntityMixin implements MovingDataHolder {
+
+    @Unique
+    private static final String MACHINEMOD$TAG = "machinemod:MovingData";
+
+    /** The machine data this moving block was loaded with from the save, if any. */
+    @Unique
+    private CompoundTag machinemod$savedMoveData;
+
+    @Override
+    public CompoundTag machinemod$getSavedMoveData() {
+        return this.machinemod$savedMoveData;
+    }
+
+    @Override
+    public void machinemod$clearSavedMoveData() {
+        this.machinemod$savedMoveData = null;
+    }
+
+    /** Writes the waiting machine data (or the copy this block was loaded with) into the save. */
+    @Inject(method = "saveAdditional", at = @At("TAIL"))
+    private void machinemod$saveMoveData(CompoundTag tag, CallbackInfo ci) {
+        PistonMovingBlockEntity self = (PistonMovingBlockEntity) (Object) this;
+        Level level = self.getLevel();
+        CompoundTag data = null;
+        if (level != null && !level.isClientSide()) {
+            data = MovingBlockEntityData.peek(level.dimension().location().toString(), self.getBlockPos());
+        }
+        if (data == null) data = this.machinemod$savedMoveData;
+        if (data != null) tag.put(MACHINEMOD$TAG, data.copy());
+    }
+
+    @Inject(method = "load", at = @At("TAIL"))
+    private void machinemod$loadMoveData(CompoundTag tag, CallbackInfo ci) {
+        this.machinemod$savedMoveData = tag.contains(MACHINEMOD$TAG, Tag.TAG_COMPOUND)
+                ? tag.getCompound(MACHINEMOD$TAG).copy() : null;
+    }
 
     /**
      * Normal restore path: 2-tick piston animation completion.
@@ -58,7 +103,7 @@ public abstract class PistonMovingBlockEntityMixin {
         BlockState currentState = level.getBlockState(pos);
         if (currentState.is(Blocks.MOVING_PISTON)) return;
 
-        machinemod$tryRestore(level, pos);
+        machinemod$tryRestore(level, pos, (MovingDataHolder) (Object) blockEntity);
     }
 
     /**
@@ -78,15 +123,19 @@ public abstract class PistonMovingBlockEntityMixin {
 
         if (level == null || level.isClientSide()) return;
 
-        machinemod$tryRestore(level, pos);
+        machinemod$tryRestore(level, pos, this);
     }
 
     /**
-     * Shared restore logic for both tick() and finalTick() paths.
+     * Shared restore logic for both tick() and finalTick() paths: the in-memory copy first,
+     * then the copy this moving block was loaded with from the save.
      */
-    private static void machinemod$tryRestore(Level level, BlockPos pos) {
+    @Unique
+    private static void machinemod$tryRestore(Level level, BlockPos pos, MovingDataHolder holder) {
         String dimensionKey = level.dimension().location().toString();
         CompoundTag savedData = MovingBlockEntityData.retrieve(dimensionKey, pos);
+        if (savedData == null && holder != null) savedData = holder.machinemod$getSavedMoveData();
+        if (holder != null) holder.machinemod$clearSavedMoveData();
 
         if (savedData != null) {
             BlockEntity be = level.getBlockEntity(pos);
