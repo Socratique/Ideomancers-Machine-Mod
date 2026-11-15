@@ -39,6 +39,19 @@ Details of every feature are in the [README](README.md).
   any stage of oxidation, waxed or not, both for lighting and for the address.
 - Breaking Oddstone that was only placed against a portal's face (not part of its frame) closed the
   portal. Only frame blocks close it now.
+- Shift-clicking a stack into a Machine Base put one item in its slot, and then, since the Base had
+  just become a Pipe or Storage, poured the rest of the stack into it. It now stops after the one.
+- A sticky piston's pull stored machine data for linked Oddstone left behind over the push limit,
+  under a position nothing was moving into; a later block arriving there could pick it up.
+- Two pistons starting in the same moment could make the first one's framed blocks render hollow while
+  moving.
+- Two machine blocks changing in the same tick could leave a frame touching only the second one in
+  the wrong state.
+- A Machine Piston's head could overwrite a block another piston was sliding into its spot (the block
+  was lost).
+- Machine settings (Repeater delay, Transformer level, Timer and Engine intervals) could be changed by a
+  player who didn't have the machine's menu open, or by a spectator. Only the open menu changes them now.
+- Leaving a single-player world kept part of it in memory until the game closed.
 
 ### Changed
 
