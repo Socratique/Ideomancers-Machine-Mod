@@ -16,6 +16,10 @@ Details of every feature are in the [README](README.md).
 - A mistake in `config/machinemod/machinemod.json` (a missing comma, say) crashed the game or server at the
   next piston move. The mistake is now logged and the settings that could be read are kept; a value of
   the wrong type falls back to its default. `/machinemod reload` says when the file had a problem.
+- An unlinked portal threw things into the ground near the bottom of the world (the far spot's height
+  was read before its chunk was loaded). They now land on the surface, inside the world border. In the
+  End, a spot over the void is skipped for another; if every try is void, nothing is thrown. In the
+  Nether the highest block is the roof, so arrivals land on the roof.
 
 ## 0.1.0 (2026-11-15) — Alpha
 
