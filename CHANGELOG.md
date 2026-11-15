@@ -28,6 +28,14 @@ Details of every feature are in the [README](README.md).
   framed (and doesn't light up when stepped on).
 - A framed block or Hollowstone with a malformed inner block id (only possible through commands)
   crashed every client that drew it. It now counts as empty.
+- A filled Hollowstone mined with a pickaxe dropped no shards (the block inside was put back before
+  the drops). It now drops its shards and leaves the block inside standing. Broken with Silk Touch on a
+  tool that can't harvest it (a shovel), it no longer destroys the block inside.
+
+### Changed
+
+- Fortune on Hollowstone gives at most 9 shards, the number that crafts one Hollowstone (it averaged
+  12 with Fortune III, up to 28).
 
 ## 0.1.0 (2026-11-15) — Alpha
 

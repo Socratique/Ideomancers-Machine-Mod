@@ -177,7 +177,7 @@ Hollowstone forms where Oddstone meets lava. Any lava *source* block touching Od
 ![Hollowstone](docs/media/hollowstone.gif)
 
 - Right-click an empty Hollowstone with a full block to put that block inside it. This is for looks only. Blocks with inventories or other stored data cannot go in.
-- Mined normally it drops 5 to 7 Hollowstone Shards (Fortune applies). Nine shards craft back into one Hollowstone. Silk Touch drops the block itself, keeping whatever is inside it, as framed blocks do: the item is named after it ("Hollowstone with Glass") and places back filled.
+- Mined normally it drops 5 to 7 Hollowstone Shards (Fortune applies, up to 9). Nine shards craft back into one Hollowstone. Silk Touch drops the block itself, keeping whatever is inside it, as framed blocks do: the item is named after it ("Hollowstone with Glass") and places back filled.
 - When a filled Hollowstone is mined without Silk Touch, the block inside is left standing in its place.
 
 ## The Machine Family
