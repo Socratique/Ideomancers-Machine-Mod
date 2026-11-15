@@ -32,7 +32,11 @@ public class ModCommands {
                 .requires(source -> source.hasPermission(2))
                 .then(Commands.literal("reload")
                     .executes(context -> {
-                        IdeomodConfig.reloadConfig();
+                        if (!IdeomodConfig.reloadConfig()) {
+                            context.getSource().sendFailure(Component.literal(
+                                    "machinemod.json has a mistake; kept the settings that could be read. See the server log."));
+                            return 0;
+                        }
                         context.getSource().sendSuccess(
                                 () -> Component.literal("Ideomod config reloaded."), true);
                         Ideomod.LOGGER.info("Config reloaded by command");
