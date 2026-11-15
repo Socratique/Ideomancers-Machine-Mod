@@ -20,6 +20,10 @@ Details of every feature are in the [README](README.md).
   was read before its chunk was loaded). They now land on the surface, inside the world border. In the
   End, a spot over the void is skipped for another; if every try is void, nothing is thrown. In the
   Nether the highest block is the roof, so arrivals land on the roof.
+- A powered empty Fluid Pipe took the water out of a waterlogged block by deleting the whole block (a
+  slab, a frame, a chest). It now only takes real water and lava source blocks.
+- A Fluid Pipe could place water in the Nether. Its water now dries up there with a hiss and smoke, as
+  from a bucket.
 
 ## 0.1.0 (2026-11-15) — Alpha
 
