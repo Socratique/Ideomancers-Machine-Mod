@@ -30,6 +30,8 @@ The intro and disclaimers below are the Ideomancer's, written for Ideomod.
 repository's Releases page (CurseForge to follow). Put it in the `mods` folder of a Minecraft 1.20.1 Forge install.
 It is needed on both the client and the server. To build it yourself, see [Building and running](#building-and-running).
 
+**What changed in each version:** [CHANGELOG.md](CHANGELOG.md).
+
 | | |
 |---|---|
 | Minecraft | 1.20.1 |

@@ -1,0 +1,38 @@
+# Changelog
+
+What changed in each version of the Ideomancer's Machine Mod, newest first. Downloads are on the
+[Releases page](https://github.com/Socratique/Ideomancers-Machine-Mod/releases) and on CurseForge.
+Details of every feature are in the [README](README.md).
+
+## Unreleased
+
+Nothing yet.
+
+## 0.1.0 (2026-11-15) — Alpha
+
+The first release. A work in progress: things will change, and some parts are rough
+(see [Known rough edges](README.md#known-rough-edges)).
+
+Needs Minecraft 1.20.1 and Forge 47 or later, on both the client and the server.
+
+- **Oddstone** (with Cobbled Oddstone and Oddstone Bricks, and their slabs, stairs and walls): when anything moves
+  an Oddstone block, every Oddstone block of the same type in a straight line from its faces, up to 12 blocks away,
+  moves with it. Land mobs won't walk over it, it doesn't conduct redstone, and it grabs slime and honey but they
+  can't grab it.
+- **Odd Slime:** a slime block that is only sticky in the direction it faces.
+- **Oddstone Repulser and Attractor:** push and pull Oddstone from up to 12 blocks away.
+- **Oddstone Portals:** a ring of Cobbled Oddstone with a mineral block on each corner. The corners are the address:
+  two portals with the same corners link. Players, mobs, items, projectiles and empty minecarts and boats go through.
+- **Hollowstone:** forms where a lava source touches Oddstone, and makes the Machine Base.
+- **Machine blocks:** a Machine Base becomes one of 20 machines depending on the item in its slot, and pistons move
+  them with their contents and settings, so flying machines carry their own circuits:
+  - Redstone: Conductor, Repeater, Toggle, Transformer, Timer, Pulser, Engine, Transmitter
+  - Movement: Machine Piston, Machine Sticky Piston, Brace, Track, Trolley, Slime Grabber, Honey Grabber
+  - Mining and storage: Machine Drill, Machine Storage
+  - Steering: **Machine Seat** (any boat): sit in it, and your move keys send a redstone pulse out of the side
+    they point to ([video](https://www.youtube.com/watch?v=yWvFrCX8fyo))
+  - Transport: Item Pipe, Fluid Pipe
+- **Iron and Copper Frames:** see-through blocks that stick to each other and to machine blocks only while a
+  machine block activates them ([video](https://www.youtube.com/watch?v=DoqsGxybqKY)). **Framed Blocks** keep the
+  block inside them working: framed slime stays sticky, framed obsidian anchors a contraption.
+- Works alongside Ideomod: if both are installed this mod steps aside, and worlds move between them.
