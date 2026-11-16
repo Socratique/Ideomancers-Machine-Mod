@@ -36,7 +36,7 @@ It is needed on both the client and the server. To build it yourself, see [Build
 |---|---|
 | Minecraft | 1.20.1 |
 | Loader | Forge 47.x (built against 47.4.10) |
-| Mod version | 0.1.0 |
+| Mod version | 0.1.1 |
 | Java | 17 |
 
 ![Every block the mod adds](docs/media/blocks.png)
@@ -542,7 +542,7 @@ Everything in this mod is in Ideomod too, under the same names in Ideomod's name
 You need JDK 17. From the repository root:
 
 ```
-./gradlew build        # builds build/libs/ideomancers-machine-mod-0.1.0.jar
+./gradlew build        # builds build/libs/ideomancers-machine-mod-0.1.1.jar
 ./gradlew runClient    # starts a development client with the mod loaded
 ```
 

@@ -6,6 +6,15 @@ Details of every feature are in the [README](README.md).
 
 ## Unreleased
 
+Nothing yet.
+
+## 0.1.1 (2026-11-16) — Alpha
+
+Fixes from a code audit before the first CurseForge release: every bug below was reproduced in game first,
+and every fix checked in game and by an automated test. Same requirements as 0.1.0 (Minecraft 1.20.1,
+Forge 47 or later, client and server). A 0.1.0 game and a 0.1.1 server (or the other way round) refuse
+to connect: the network version changed with the config sync below.
+
 ### Fixed
 
 - A machine block caught mid-move when the world was saved and closed (or its chunk unloaded) landed
