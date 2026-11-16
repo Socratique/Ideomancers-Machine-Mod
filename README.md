@@ -490,6 +490,8 @@ Mining Oddstone with a normal pickaxe drops Oddstone. Silk Touch gives Cobbled O
 
 The config file is `config/machinemod/machinemod.json`, created on first launch.
 
+On a server, the server's file is the one that counts: each player who joins is sent the server's settings and uses them while connected (their own file is left alone and comes back when they leave). In singleplayer there is only the one file.
+
 | Section | Key | Default | What it sets |
 |---|---|---|---|
 | `oddstone` | `sympathetic_radius` | 12 | Range of sympathetic links and of Transmitters (1 to 16) |
@@ -513,7 +515,7 @@ The config file is `config/machinemod/machinemod.json`, created on first launch.
 
 Commands, both for operators:
 
-- `/machinemod reload` re-reads the config file.
+- `/machinemod reload` re-reads the config file and sends the new settings to everyone on the server.
 
 ## Living alongside Ideomod
 

@@ -58,6 +58,14 @@ Details of every feature are in the [README](README.md).
 - The Machine Sticky Piston could pull Oddstone directly, which a vanilla sticky piston can't. It no
   longer does (Oddstone dragged along by a pulled group still moves).
 
+### Added
+
+- On a server, each player who joins now uses the server's settings from `machinemod.json` while connected
+  (their own file is left alone and comes back when they leave), and `/machinemod reload` sends new
+  settings to everyone. Before, a player whose file differed saw linked Oddstone pop instead of slide
+  and could set the wrong Timer or Engine time. Players need this version to join a server running it.
+  From Ideomod.
+
 ### Faster (nothing plays differently)
 
 - Machine Transmitters find each other from the list of machines each chunk already keeps, instead of
