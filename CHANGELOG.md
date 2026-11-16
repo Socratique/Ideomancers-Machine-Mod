@@ -91,6 +91,7 @@ to connect: the network version changed with the config sync below.
   Base, and still take from a Machine Storage's or Pipe's own slots.
 - Fortune on Hollowstone gives at most 9 shards, the number that crafts one Hollowstone (it averaged
   12 with Fortune III, up to 28).
+- The in-game mod list links to the CurseForge page and to GitHub Issues for bug reports.
 
 ## 0.1.0 (2026-11-15) — Alpha
 
