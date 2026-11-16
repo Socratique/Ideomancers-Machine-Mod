@@ -58,6 +58,15 @@ Details of every feature are in the [README](README.md).
 - The Machine Sticky Piston could pull Oddstone directly, which a vanilla sticky piston can't. It no
   longer does (Oddstone dragged along by a pulled group still moves).
 
+### Faster (nothing plays differently)
+
+- Machine Transmitters find each other from the list of machines each chunk already keeps, instead of
+  checking every block in range (1,330 blocks per update at the default range, 15,624 at range 12).
+- Each piston move works out which blocks move once, using vanilla's own answer, instead of two or
+  three times.
+- Item and Fluid Pipes only check for redstone when they have something to do; a burning Engine no
+  longer alerts nearby comparators every tick (only when its fuel or look changes).
+
 ### Changed
 
 - Hoppers no longer take the item out of a machine (a hopper under a Machine Drill used to take its
