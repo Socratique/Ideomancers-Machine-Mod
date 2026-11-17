@@ -28,7 +28,13 @@ to connect: the network version changed with the config sync below.
 - An unlinked portal threw things into the ground near the bottom of the world (the far spot's height
   was read before its chunk was loaded). They now land on the surface, inside the world border. In the
   End, a spot over the void is skipped for another; if every try is void, nothing is thrown. In the
-  Nether the highest block is the roof, so arrivals land on the roof.
+  Nether, where the highest block is the bedrock roof, arrivals land at a random place to stand under
+  the roof (a solid floor with room above it), and on the roof only if no such place is found.
+- Portals did not move players in survival or adventure: walking in, a player stayed where they were
+  (an unlinked portal still took its 5 hearts, again every few seconds while they stood in it), or
+  walked out of the back of a linked one. The teleport ran in the middle of the server handling the
+  player's movement, which put them back. Players now go through just after it, as with vanilla
+  portals. Creative players, mobs and items were not affected.
 - A powered empty Fluid Pipe took the water out of a waterlogged block by deleting the whole block (a
   slab, a frame, a chest). It now only takes real water and lava source blocks.
 - A Fluid Pipe could place water in the Nether. Its water now dries up there with a hiss and smoke, as
