@@ -1637,7 +1637,8 @@ public class IdeomodGameTests {
      * scatter_distance_min to _max blocks away, spread over at least three of the four compass
      * quarters and over a wide band of distances.
      */
-    @GameTest(template = EMPTY, timeoutTicks = 400)
+    // Own batch: these generate far-off chunks, and kept apart they leave the other tests' layout as it was.
+    @GameTest(template = EMPTY, timeoutTicks = 400, batch = "portal_throws")
     public static void unlinkedPortalThrowsAreRandom(GameTestHelper helper) {
         net.minecraft.server.level.ServerLevel level = helper.getLevel();
         BlockPos from = helper.absolutePos(new BlockPos(2, 2, 2));
@@ -1665,7 +1666,8 @@ public class IdeomodGameTests {
      * In the Nether an unlinked throw lands at a random place to stand under the roof (solid floor,
      * two blocks of air), not on the bedrock roof every time, and at varying heights.
      */
-    @GameTest(template = EMPTY, timeoutTicks = 400)
+    // Own batch: these generate far-off chunks, and kept apart they leave the other tests' layout as it was.
+    @GameTest(template = EMPTY, timeoutTicks = 400, batch = "portal_throws")
     public static void netherThrowsLandUnderTheRoof(GameTestHelper helper) {
         net.minecraft.server.level.ServerLevel nether = helper.getLevel().getServer().getLevel(net.minecraft.world.level.Level.NETHER);
         if (nether == null) { helper.fail("no Nether on this server"); return; }
