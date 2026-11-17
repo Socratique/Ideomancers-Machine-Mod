@@ -6,7 +6,12 @@ Details of every feature are in the [README](README.md).
 
 ## Unreleased
 
-Nothing yet.
+### Fixed
+
+- Lighting a portal with an ender pearl could teleport you a few blocks away. When the new portal linked at
+  once, the pearl (used up, as it should be) was still inside the opening, and the portal sent a fresh copy of
+  it through to the partner; that copy landed there and teleported you to it, like any pearl. A used-up pearl
+  now stays used up.
 
 ## 0.1.1 (2026-11-17) — Alpha
 
