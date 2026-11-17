@@ -8,7 +8,7 @@ Details of every feature are in the [README](README.md).
 
 Nothing yet.
 
-## 0.1.1 (2026-11-16) — Alpha
+## 0.1.1 (2026-11-17) — Alpha
 
 Fixes from a code audit before the first CurseForge release: every bug below was reproduced in game first,
 and every fix checked in game and by an automated test. Same requirements as 0.1.0 (Minecraft 1.20.1,
