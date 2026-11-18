@@ -21,10 +21,13 @@ Details of every feature are in the [README](README.md).
 
 ### Fixed
 
-- A Toggle, Timer or Repeater ignored a pulse shorter than its 2-tick reaction time: the signal had to
-  still be on when it acted. A Transmitter receiver's pulses, for one, never flipped a Toggle. Every rising
-  edge now counts: a Toggle flips, a Timer starts, and a Repeater passes the pulse on for its delay, as a
-  vanilla repeater does.
+- A Toggle, Timer, Repeater or Pulser ignored a pulse shorter than its 2-tick reaction time: the signal had
+  to still be on when it acted. A Transmitter receiver's pulses, for one, never flipped a Toggle. Every
+  rising edge now counts: a Toggle flips, a Timer starts, a Pulser fires, and a Repeater passes the pulse on
+  for its delay, as a vanilla repeater does.
+- A machine block set down by a piston while on seemed, for a moment, to give out a signal on every side,
+  its input side included, before the rest of its state came back. A ring of Pulsers moved mid-loop could
+  fire backwards. It now stays silent for that moment.
 - An Engine moved by a piston restarted its count each time it landed (for a moment it saw no signal while
   the rest of the group was still landing), so on a machine moved every few ticks it never fired. It now
   pauses while moving and carries on counting after.

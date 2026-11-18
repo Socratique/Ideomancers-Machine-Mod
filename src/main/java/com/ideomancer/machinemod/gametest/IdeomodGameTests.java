@@ -369,7 +369,7 @@ public class IdeomodGameTests {
                 if (TRACE) {
                     BlockPos tp = helper.absolutePos(new BlockPos(RING[i][0], 1, RING[i][1] + dz));
                     if (helper.getLevel().getBlockEntity(tp) instanceof MachineFrameBlockEntity tbe) {
-                        Ideomod.LOGGER.info("[TRACE p{} t={} dz={}] #{} on={} in={} low={} left={}", pistonTick, helper.getTick(), dz, i, now,
+                        Ideomod.LOGGER.info("[TRACE p{} t={} dz={}] #{} {} on={} in={} low={} left={}", pistonTick, helper.getTick(), dz, i, tp.toShortString(), now,
                                 tbe.getInputFace(), tbe.isInputWasLow(), tbe.getPulserTicksRemaining());
                     }
                 }
@@ -1488,6 +1488,21 @@ helper.runAfterDelay(60, () -> {
         runCircuit(helper, wirelessCircuit(), 6, true, (r, ph) -> clockFlipsToggle(r, ph, 1, 4, 10, 0));
     }
 
+    private static Part[] pulserCircuit() {
+        return new Part[]{part(1, Items.LEVER), engine(2, 10), part(3, Items.STONE_BUTTON), part(4, Items.LEVER)};
+    }
+
+    /** Toggle (latched) -> Engine every 10 -> Pulser -> Toggle: one flip per pulse. */
+    @GameTest(template = EMPTY, timeoutTicks = 700, batch = "circuits")
+    public static void circuitPulserFlipsAToggle(GameTestHelper helper) {
+        runCircuit(helper, pulserCircuit(), 4, false, (r, ph) -> clockFlipsToggle(r, ph, 1, 3, 10));
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = 700, batch = "circuits")
+    public static void circuitPulserFlipsAToggleWhileMoving(GameTestHelper helper) {
+        runCircuit(helper, pulserCircuit(), 4, true, (r, ph) -> clockFlipsToggle(r, ph, 1, 3, 10, 0));
+    }
+
     /** The same circuits on a slower piston (10 ticks out, 10 back), with time to work between moves. */
     @GameTest(template = EMPTY, timeoutTicks = 700, batch = "circuits")
     public static void circuitClockFlipsAToggleMovingSlowly(GameTestHelper helper) {
@@ -1502,6 +1517,11 @@ helper.runAfterDelay(60, () -> {
     @GameTest(template = EMPTY, timeoutTicks = 700, batch = "circuits")
     public static void circuitWirelessFlipsAToggleMovingSlowly(GameTestHelper helper) {
         runCircuit(helper, wirelessCircuit(), 6, 10, (r, ph) -> clockFlipsToggle(r, ph, 1, 4, 10));
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = 700, batch = "circuits")
+    public static void circuitPulserFlipsAToggleMovingSlowly(GameTestHelper helper) {
+        runCircuit(helper, pulserCircuit(), 4, 10, (r, ph) -> clockFlipsToggle(r, ph, 1, 3, 10));
     }
 
     /**
@@ -1533,6 +1553,9 @@ helper.runAfterDelay(60, () -> {
 
     @GameTest(template = EMPTY, timeoutTicks = 60, batch = "circuits")
     public static void oneTickPulseGoesThroughARepeater(GameTestHelper helper) { oneTickPulse(helper, Items.REPEATER, "come out of the Repeater"); }
+
+    @GameTest(template = EMPTY, timeoutTicks = 60, batch = "circuits")
+    public static void oneTickPulseFiresAPulser(GameTestHelper helper) { oneTickPulse(helper, Items.STONE_BUTTON, "fire the Pulser"); }
 
     // ==================== Recipes ====================
 

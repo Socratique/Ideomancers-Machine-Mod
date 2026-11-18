@@ -103,6 +103,13 @@ public final class MachineRedstoneHelper {
                 if (neighborInputFace != null && neighborInputFace == face.getOpposite()) {
                     return 0; // We're on their input face — they don't output toward us
                 }
+                // Just set down by a piston, its saved data (input side included) not back yet: it would
+                // seem to output on every side, and a Pulser behind it in a moving ring fired backwards.
+                if (neighborInputFace == null && !(neighborBlock instanceof MachineToggleBlock)
+                        && level.getBlockEntity(neighborPos) instanceof MachineFrameBlockEntity nMachine
+                        && nMachine.isLanding()) {
+                    return 0;
+                }
                 return output;
             }
             return 0;

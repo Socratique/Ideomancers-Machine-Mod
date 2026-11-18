@@ -104,6 +104,9 @@ public class MachineTransformerBlock extends AbstractMachineBlock {
             BlockEntity be = realLevel.getBlockEntity(pos);
             if (be instanceof MachineFrameBlockEntity machineBE) {
                 Direction inputFace = machineBE.getInputFace();
+                // Just landed from a piston move, saved data (input side included) not back yet: silent,
+                // or it would light every side for that moment and fire the block behind it.
+                if (inputFace == null && machineBE.isLanding()) return 0;
                 if (inputFace != null && direction == inputFace.getOpposite()) {
                     return 0;
                 }

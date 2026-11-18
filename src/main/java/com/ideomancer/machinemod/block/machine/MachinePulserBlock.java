@@ -119,6 +119,9 @@ public class MachinePulserBlock extends AbstractMachineBlock {
             BlockEntity be = realLevel.getBlockEntity(pos);
             if (be instanceof MachineFrameBlockEntity machineBE) {
                 Direction inputFace = machineBE.getInputFace();
+                // Just landed from a piston move, saved data (input side included) not back yet: silent,
+                // or it would light every side for that moment and fire the block behind it.
+                if (inputFace == null && machineBE.isLanding()) return 0;
                 if (inputFace != null && direction == inputFace.getOpposite()) {
                     return 0;
                 }
@@ -195,6 +198,9 @@ public class MachinePulserBlock extends AbstractMachineBlock {
 
                 // Genuine rising edge — schedule turn on.
                 machineBE.setInputFace(bestFace);
+                // An edge from a real signal change counts even if its pulse is short; a neighbour that was
+                // already on before a piston move and lands on again is not a new edge (see isGhostEdge).
+                if (!movedByPiston && !MachineFrameBlockEntity.isGhostEdge(level, pos, bestFace)) machineBE.setPendingEdge(bestFace);
                 if (!level.getBlockTicks().willTickThisTick(pos, this)) {
                     level.scheduleTick(pos, this, 2, TickPriority.HIGH);
                 }
@@ -226,6 +232,14 @@ public class MachinePulserBlock extends AbstractMachineBlock {
         if (!wasPowered) {
             // UNPOWERED → check if we should turn ON and start pulse.
             Direction currentInput = machineBE.getInputFace();
+            // A rising edge seen since the last tick counts even if its pulse is already over
+            // (until 2026-11-18 a pulse shorter than the 2-tick delay was ignored).
+            Direction edge = machineBE.getPendingEdge();
+            machineBE.setPendingEdge(null);
+            if (currentInput == null && edge != null) {
+                currentInput = edge;
+                machineBE.setInputFace(edge);
+            }
 
             // After piston movement, a pulser that expired
             // "clean" (signal gone at expiry) has inputFace=null. Without a
@@ -245,11 +259,11 @@ public class MachinePulserBlock extends AbstractMachineBlock {
             if (currentInput != null) {
                 int inputSignal = MachineRedstoneHelper.getIncomingSignalFromFace(level, pos, currentInput, shouldSignal);
 
-                if (inputSignal > 0) {
+                if (inputSignal > 0 || edge != null) {
                     // Start the pulse — read duration from config
                     int duration = IdeomodConfig.getPulserPulseDuration();
                     machineBE.setPulserTicksRemaining(duration);
-                    machineBE.setInputWasLow(false);
+                    machineBE.setInputWasLow(inputSignal <= 0);  // pulse already gone: armed for the next
 
                     LOGGER.debug("[PULSER] ON at {} input={} duration={}", pos, currentInput, duration);
 

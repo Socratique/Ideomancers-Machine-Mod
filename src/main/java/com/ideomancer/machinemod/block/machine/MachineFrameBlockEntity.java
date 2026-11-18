@@ -341,6 +341,15 @@ public class MachineFrameBlockEntity extends BlockEntity
     private long cameBackOnAt = Long.MIN_VALUE;
 
     /** Whether this block landed from a piston move in the last 2 ticks, outputting as it was before. */
+    /**
+     * True for the moment between a piston setting this block down and handing back its saved data
+     * (vanilla places the block, which updates its neighbours, before the mod restores the data).
+     */
+    public boolean isLanding() {
+        return level instanceof ServerLevel && com.ideomancer.machinemod.block.movement.MovingBlockEntityData.peek(
+                level.dimension().location().toString(), worldPosition) != null;
+    }
+
     public boolean cameBackOn() {
         return this.level != null && this.cameBackOnAt != Long.MIN_VALUE && this.level.getGameTime() - this.cameBackOnAt <= 2;
     }
