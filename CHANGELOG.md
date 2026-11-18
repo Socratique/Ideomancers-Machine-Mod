@@ -10,6 +10,15 @@ Details of every feature are in the [README](README.md).
 
 - The mod's logo in the in-game mod list.
 
+### Changed
+
+- The Machine Track carries a pulse instead of holding a signal (the Ideomancer's original idea for it). A
+  redstone signal turning on next to a Track sends a pulse along the line, one Track a tick, and every
+  Trolley it passes moves one block, away from where the pulse came from. A line can be any length (the old
+  signal faded by 1 per Track, so a line stopped after 15); the pulse passes each Track once, so loops and
+  branches that meet again don't trap it; a signal held on gives one pulse. The grey indicator now shows the
+  pulse running down the line.
+
 ### Fixed
 
 - Lighting a portal with an ender pearl could teleport you a few blocks away. When the new portal linked at
