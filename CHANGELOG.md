@@ -21,6 +21,15 @@ Details of every feature are in the [README](README.md).
 
 ### Fixed
 
+- A Toggle, Timer or Repeater ignored a pulse shorter than its 2-tick reaction time: the signal had to
+  still be on when it acted. A Transmitter receiver's pulses, for one, never flipped a Toggle. Every rising
+  edge now counts: a Toggle flips, a Timer starts, and a Repeater passes the pulse on for its delay, as a
+  vanilla repeater does.
+- An Engine moved by a piston restarted its count each time it landed (for a moment it saw no signal while
+  the rest of the group was still landing), so on a machine moved every few ticks it never fired. It now
+  pauses while moving and carries on counting after.
+- A Toggle, Timer or Repeater that had a pulse waiting when a piston moved it now acts on it once it lands
+  (a pulse arriving the tick before a move was lost, so a moving circuit could miss a flip).
 - Lighting a portal with an ender pearl could teleport you a few blocks away. When the new portal linked at
   once, the pearl (used up, as it should be) was still inside the opening, and the portal sent a fresh copy of
   it through to the partner; that copy landed there and teleported you to it, like any pearl. A used-up pearl
