@@ -6,6 +6,10 @@ Details of every feature are in the [README](README.md).
 
 ## Unreleased
 
+### Added
+
+- The mod's logo in the in-game mod list.
+
 ### Fixed
 
 - Lighting a portal with an ender pearl could teleport you a few blocks away. When the new portal linked at
