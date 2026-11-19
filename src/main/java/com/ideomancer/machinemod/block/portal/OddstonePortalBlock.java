@@ -236,8 +236,30 @@ public class OddstonePortalBlock extends Block {
         if (entry.isLinked()) {
             linkedTeleport(serverLevel, entity, entry, pos, state);
         } else {
+            if (!(entity instanceof net.minecraft.world.entity.player.Player) && !scatterAllowed(serverLevel, entry.pos)) return;
             scatterTeleport(serverLevel, entity);
         }
+    }
+
+    /** Per world, per unlinked portal: the game time it last threw out something that is not a player. */
+    private static final java.util.Map<Level, java.util.Map<BlockPos, Long>> LAST_SCATTER = new java.util.WeakHashMap<>();
+    /** Ticks between two non-player throws from one unlinked portal. */
+    private static final int SCATTER_GAP = 20;
+
+    /**
+     * An unlinked portal throws out at most one non-player a second. Each throw lands somewhere new,
+     * 200 to 1000 blocks away, and loads (or generates) the ground there; a hopper or a mob farm
+     * emptying into one used to generate terrain non-stop. What has to wait stays in the portal and
+     * goes once its own cooldown is over. Players always go at once.
+     */
+    private static boolean scatterAllowed(ServerLevel level, BlockPos portal) {
+        java.util.Map<BlockPos, Long> last = LAST_SCATTER.computeIfAbsent(level, l -> new java.util.HashMap<>());
+        long now = level.getGameTime();
+        Long then = last.get(portal);
+        if (then != null && now - then < SCATTER_GAP && now >= then) return false;
+        if (last.size() > 256) last.entrySet().removeIf(e -> now - e.getValue() >= SCATTER_GAP);
+        last.put(portal.immutable(), now);
+        return true;
     }
 
     /**
@@ -278,6 +300,14 @@ public class OddstonePortalBlock extends Block {
 
         if (partnerEntry == null) {
             Ideomod.LOGGER.warn("Partner portal at {} not found in registry", partnerPos);
+            scatterTeleport(level, entity);
+            return;
+        }
+        if (OddstonePortalSavedData.isGone(level, partnerEntry)) {
+            // Its blocks went without it being broken (a world edit, a deleted region): this portal is
+            // unlinked now, and acts like it.
+            Ideomod.LOGGER.info("Partner portal at {} is gone: unlinking it", partnerPos);
+            data.unregisterPortal(partnerPos);
             scatterTeleport(level, entity);
             return;
         }
@@ -345,6 +375,15 @@ public class OddstonePortalBlock extends Block {
         // -- Step 4: Map fractions to partner coordinates --
         double targetH = partnerBounds.minH + hFraction * (partnerBounds.maxH - partnerBounds.minH);
         double targetV = partnerBounds.minV + vFraction * (partnerBounds.maxV - partnerBounds.minV);
+        // Keep the whole body inside the opening: the fraction is of the feet, so going in near the
+        // top of a tall portal used to put the head in the top frame of a short one.
+        double halfWidth = entity.getBbWidth() / 2.0;
+        targetV = Math.max(partnerBounds.minV, Math.min(targetV, partnerBounds.maxV - entity.getBbHeight()));
+        if (partnerBounds.maxH - partnerBounds.minH >= 2 * halfWidth) {
+            targetH = Math.max(partnerBounds.minH + halfWidth, Math.min(targetH, partnerBounds.maxH - halfWidth));
+        } else {
+            targetH = (partnerBounds.minH + partnerBounds.maxH) / 2.0;
+        }
 
         double targetX, targetY, targetZ;
         if (partnerAxis == Direction.Axis.X) {

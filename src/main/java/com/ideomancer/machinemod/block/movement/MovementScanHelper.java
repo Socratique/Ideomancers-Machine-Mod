@@ -101,7 +101,17 @@ public class MovementScanHelper {
      */
     public static Set<BlockPos> scanSympatheticChannel(Level level, Set<BlockPos> startPositions,
                                                          int radius, String channel) {
-        Set<BlockPos> found = new HashSet<>();
+        return scanSympatheticChannel(level, startPositions, radius, channel, Integer.MAX_VALUE);
+    }
+
+    /**
+     * As above, stopping once {@code limit} blocks are found. The scan only looks in loaded chunks (on
+     * the server, reading an unloaded one loads or generates it; a long natural Oddstone vein could walk
+     * it far underground) and finds blocks nearest first, in the same order on server and client.
+     */
+    public static Set<BlockPos> scanSympatheticChannel(Level level, Set<BlockPos> startPositions,
+                                                         int radius, String channel, int limit) {
+        Set<BlockPos> found = new java.util.LinkedHashSet<>();
 
         if (radius < 1) return found;
 
@@ -121,12 +131,14 @@ public class MovementScanHelper {
             for (Direction face : Direction.values()) {
                 for (int dist = 1; dist <= radius; dist++) {
                     BlockPos checkPos = sourcePos.relative(face, dist);
+                    if (!level.isLoaded(checkPos)) continue;
 
                     String checkChannel = getSympatheticChannel(level, checkPos);
                     if (channel.equals(checkChannel)) {
                         if (found.add(checkPos)) {
                             // Newly discovered — add to frontier for transitive scan
                             frontier.add(checkPos);
+                            if (found.size() >= limit) return found;
                         }
                         // Found the first block on this channel in this direction — stop
                         break;
@@ -148,21 +160,26 @@ public class MovementScanHelper {
      * sympathetic scanning in a single pass over toPush.
      */
     public static Map<String, Set<BlockPos>> scanAllChannels(Level level, Set<BlockPos> startPositions, int radius) {
-        // Group start positions by channel
-        Map<String, Set<BlockPos>> channelSeeds = new HashMap<>();
+        return scanAllChannels(level, startPositions, radius, Integer.MAX_VALUE);
+    }
+
+    /** As above, each channel's scan stopping at {@code limit} blocks (seeds included). */
+    public static Map<String, Set<BlockPos>> scanAllChannels(Level level, Set<BlockPos> startPositions, int radius, int limit) {
+        // Group start positions by channel (in a fixed order: the order blocks join a move matters)
+        Map<String, Set<BlockPos>> channelSeeds = new java.util.LinkedHashMap<>();
         for (BlockPos pos : startPositions) {
             String channel = getSympatheticChannel(level, pos);
             if (channel != null) {
-                channelSeeds.computeIfAbsent(channel, k -> new HashSet<>()).add(pos);
+                channelSeeds.computeIfAbsent(channel, k -> new java.util.LinkedHashSet<>()).add(pos);
             }
         }
 
         // Scan each channel independently
-        Map<String, Set<BlockPos>> results = new HashMap<>();
+        Map<String, Set<BlockPos>> results = new java.util.LinkedHashMap<>();
         for (Map.Entry<String, Set<BlockPos>> entry : channelSeeds.entrySet()) {
             String channel = entry.getKey();
             Set<BlockPos> seeds = entry.getValue();
-            Set<BlockPos> found = scanSympatheticChannel(level, seeds, radius, channel);
+            Set<BlockPos> found = scanSympatheticChannel(level, seeds, radius, channel, limit);
             // Only include if new positions were discovered beyond the seeds
             results.put(channel, found);
         }

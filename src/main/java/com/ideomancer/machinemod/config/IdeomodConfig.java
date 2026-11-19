@@ -760,6 +760,7 @@ public class IdeomodConfig {
     }
 
     private static float clampFloat(float value, float min, float max) {
+        if (!Float.isFinite(value)) return value > 0 ? max : min;   // NaN or -Infinity: min; +Infinity: max
         return Math.max(min, Math.min(max, value));
     }
 

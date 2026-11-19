@@ -93,6 +93,31 @@ public abstract class PistonMovingBlockEntityMixin implements MovingDataHolder {
      * Fires at TAIL of tick() — checks if the real block has been placed
      * (no longer MOVING_PISTON) and restores data if found.
      */
+    /** Marks the destination while the moving block ticks: it may be put down in this tick (see isLanding). */
+    @Inject(method = "tick", at = @At("HEAD"))
+    private static void machinemod$beginLandingTick(Level level, BlockPos pos, BlockState state,
+                                                    PistonMovingBlockEntity blockEntity, CallbackInfo ci) {
+        if (!level.isClientSide()) MovingBlockEntityData.beginLanding(pos);
+    }
+
+    @Inject(method = "tick", at = @At("RETURN"))
+    private static void machinemod$endLandingTick(Level level, BlockPos pos, BlockState state,
+                                                  PistonMovingBlockEntity blockEntity, CallbackInfo ci) {
+        if (!level.isClientSide()) MovingBlockEntityData.endLanding(pos);
+    }
+
+    @Inject(method = "finalTick", at = @At("HEAD"))
+    private void machinemod$beginLandingFinal(CallbackInfo ci) {
+        PistonMovingBlockEntity self = (PistonMovingBlockEntity) (Object) this;
+        if (self.getLevel() != null && !self.getLevel().isClientSide()) MovingBlockEntityData.beginLanding(self.getBlockPos());
+    }
+
+    @Inject(method = "finalTick", at = @At("RETURN"))
+    private void machinemod$endLandingFinal(CallbackInfo ci) {
+        PistonMovingBlockEntity self = (PistonMovingBlockEntity) (Object) this;
+        if (self.getLevel() != null && !self.getLevel().isClientSide()) MovingBlockEntityData.endLanding(self.getBlockPos());
+    }
+
     @Inject(method = "tick", at = @At("TAIL"))
     private static void machinemod$restoreMovableBlockEntityData(
             Level level, BlockPos pos, BlockState state,

@@ -327,7 +327,9 @@ public abstract class PistonStructureResolverMixin {
         int radius = IdeomodConfig.getSympatheticRadius();
 
         java.util.Map<String, java.util.Set<BlockPos>> channelResults =
-                MovementScanHelper.scanAllChannels(level, new java.util.HashSet<>(this.toPush), radius);
+                MovementScanHelper.scanAllChannels(level, new java.util.LinkedHashSet<>(this.toPush), radius,
+                        // past the push limit a linked block is left behind anyway: no need to look further
+                        this.toPush.size() + machinemod$calculatePushLimit());
 
         boolean addedAny = false;
 

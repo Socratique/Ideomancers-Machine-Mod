@@ -266,7 +266,9 @@ public class MachineTimerBlock extends AbstractMachineBlock {
             if (currentInput != null) {
                 int inputSignal = MachineRedstoneHelper.getIncomingSignalFromFace(level, pos, currentInput, shouldSignal);
 
-                if (inputSignal > 0 || edge != null) {
+                // With no edge seen, a lit input turns it on only if it has not just landed: a steady
+                // source landing beside it, part of the same moving machine, is not a new signal.
+                if (edge != null || (inputSignal > 0 && !machineBE.landedWithin(2))) {
                     // Start the timer
                     int duration = machineBE.getTimerDuration();
                     machineBE.setTimerTicksRemaining(duration);

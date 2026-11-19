@@ -4,7 +4,10 @@ What changed in each version of the Ideomancer's Machine Mod, newest first. Down
 [Releases page](https://github.com/Socratique/Ideomancers-Machine-Mod/releases) and on CurseForge.
 Details of every feature are in the [README](README.md).
 
-## Unreleased
+## 0.1.2 (2026-11-19) — Alpha
+
+The Machine Track now carries a pulse, machine circuits keep working on moving machines, and fixes
+from a last review before the CurseForge release.
 
 ### Added
 
@@ -27,7 +30,27 @@ Details of every feature are in the [README](README.md).
   for its delay, as a vanilla repeater does.
 - A machine block set down by a piston while on seemed, for a moment, to give out a signal on every side,
   its input side included, before the rest of its state came back. A ring of Pulsers moved mid-loop could
-  fire backwards. It now stays silent for that moment.
+  fire backwards. It now stays silent for that moment, then tells its neighbours it is on (before, a lamp,
+  dust or piston beside a Repeater, Transformer or Timer that landed on stayed off).
+- A Pulser or Timer moved together with the steady signal feeding it fired again on landing when it
+  landed before its source. A Track moved with its source sent a pulse (and pushed its Trolleys) on
+  landing. A steady source landing beside them is no longer a new signal.
+- An unlinked portal threw out everything that entered it, each to a new spot 200 to 1000 blocks away,
+  loading or generating the ground there: a hopper or mob farm emptying into one generated terrain
+  non-stop. It now throws out at most one thing that is not a player a second; the rest wait their turn.
+  Players always go at once.
+- A portal whose blocks went without being broken (a world edit, a deleted or regenerated region) stayed
+  registered: its address stayed taken, and its partner kept sending players to where it had been. Such a
+  portal is now dropped when its address is lit again or its partner is used.
+- Going through a linked portal near the top or the side of the opening could put you partly inside the
+  partner's frame (with a moment of suffocation) when the partner is smaller. You now come out inside
+  the opening.
+- Pushing Oddstone near a long natural Oddstone vein could follow the vein's links far underground,
+  loading or generating chunks on the way. The search now stops at the push limit and stays in loaded
+  chunks.
+- A short pulse waiting to be acted on is saved with the chunk.
+- A `scatter_damage` of NaN in the config file gave players a health of NaN.
+- `/machinemod reload` said "Ideomod config reloaded".
 - An Engine moved by a piston restarted its count each time it landed (for a moment it saw no signal while
   the rest of the group was still landing), so on a machine moved every few ticks it never fired. It now
   pauses while moving and carries on counting after.

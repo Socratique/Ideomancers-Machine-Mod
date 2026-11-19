@@ -1472,20 +1472,20 @@ helper.runAfterDelay(60, () -> {
         runCircuit(helper, transformerCircuit(), 4, true, IdeomodGameTests::transformerHolds);
     }
 
-    private static Part[] wirelessCircuit() {
-        Item channel = ModBlocks.COBBLED_ODDSTONE.get().asItem();
+    /** Each wireless test has its own channel: the three run side by side, and a shared channel crossed their signals. */
+    private static Part[] wirelessCircuit(Item channel) {
         return new Part[]{part(1, Items.LEVER), engine(2, 10), part(3, channel), part(5, channel), part(6, Items.LEVER)};
     }
 
     /** Toggle (latched) -> Engine every 10 -> Transmitter ... gap ... Transmitter -> Toggle: one flip per pulse. */
     @GameTest(template = EMPTY, timeoutTicks = 700, batch = "circuits")
     public static void circuitWirelessFlipsAToggle(GameTestHelper helper) {
-        runCircuit(helper, wirelessCircuit(), 6, false, (r, ph) -> clockFlipsToggle(r, ph, 1, 4, 10));
+        runCircuit(helper, wirelessCircuit(ModBlocks.COBBLED_ODDSTONE.get().asItem()), 6, false, (r, ph) -> clockFlipsToggle(r, ph, 1, 4, 10));
     }
 
     @GameTest(template = EMPTY, timeoutTicks = 700, batch = "circuits")
     public static void circuitWirelessFlipsAToggleWhileMoving(GameTestHelper helper) {
-        runCircuit(helper, wirelessCircuit(), 6, true, (r, ph) -> clockFlipsToggle(r, ph, 1, 4, 10, 0));
+        runCircuit(helper, wirelessCircuit(ModBlocks.ODDSTONE_BRICKS.get().asItem()), 6, true, (r, ph) -> clockFlipsToggle(r, ph, 1, 4, 10, 0));
     }
 
     private static Part[] pulserCircuit() {
@@ -1516,7 +1516,7 @@ helper.runAfterDelay(60, () -> {
 
     @GameTest(template = EMPTY, timeoutTicks = 700, batch = "circuits")
     public static void circuitWirelessFlipsAToggleMovingSlowly(GameTestHelper helper) {
-        runCircuit(helper, wirelessCircuit(), 6, 10, (r, ph) -> clockFlipsToggle(r, ph, 1, 4, 10));
+        runCircuit(helper, wirelessCircuit(ModBlocks.COBBLED_ODDSTONE_WALL.get().asItem()), 6, 10, (r, ph) -> clockFlipsToggle(r, ph, 1, 4, 10));
     }
 
     @GameTest(template = EMPTY, timeoutTicks = 700, batch = "circuits")
@@ -1556,6 +1556,154 @@ helper.runAfterDelay(60, () -> {
 
     @GameTest(template = EMPTY, timeoutTicks = 60, batch = "circuits")
     public static void oneTickPulseFiresAPulser(GameTestHelper helper) { oneTickPulse(helper, Items.STONE_BUTTON, "fire the Pulser"); }
+
+    // ==================== Landing edge cases (final review, 2026-11-19) ====================
+
+    /** A machine block at (x,2,2) made from the Machine Base and an item. */
+    private static void machineAt(GameTestHelper h, int x, Item item) {
+        h.setBlock(x, 2, 2, ModBlocks.MACHINE_BLOCK.get());
+        ((MachineFrameBlockEntity) h.getBlockEntity(new BlockPos(x, 2, 2))).setItem(0, new ItemStack(item));
+    }
+
+    /** A piston at (0,2,2) facing east, fired at tick {@code at}; {@code cutShort}: power off the next tick (the move snaps to its end). */
+    private static void pistonPush(GameTestHelper h, int at, boolean cutShort) {
+        h.setBlock(0, 2, 2, Blocks.PISTON.defaultBlockState().setValue(PistonBaseBlock.FACING, Direction.EAST));
+        h.runAfterDelay(at, () -> h.setBlock(0, 1, 2, Blocks.REDSTONE_BLOCK));
+        if (cutShort) h.runAfterDelay(at + 1, () -> h.setBlock(0, 1, 2, Blocks.STONE));
+    }
+
+    /**
+     * A machine held on by a redstone block is pushed up to a lamp: the lamp lights. (The machine lands
+     * before its data is back, silent for that moment; then it has to tell its neighbours it is on.)
+     */
+    private static void landedMachineLightsALamp(GameTestHelper h, Item item, java.util.function.Consumer<MachineFrameBlockEntity> setup) {
+        machineAt(h, 2, item);
+        setup.accept((MachineFrameBlockEntity) h.getBlockEntity(new BlockPos(2, 2, 2)));
+        h.runAfterDelay(2, () -> h.setBlock(1, 2, 2, Blocks.REDSTONE_BLOCK));   // after: a Timer starts on the edge
+        h.setBlock(4, 2, 2, Blocks.REDSTONE_LAMP);
+        pistonPush(h, 15, false);
+        h.runAfterDelay(40, () -> {
+            BlockState lamp = h.getBlockState(new BlockPos(4, 2, 2));
+            Integer out = outputOf(h.getBlockState(new BlockPos(3, 2, 2)));
+            if (out == null || out <= 0) h.fail("the machine was not on after the move", new BlockPos(3, 2, 2));
+            else if (!lamp.getValue(RedstoneLampBlock.LIT)) h.fail("the lamp next to the landed machine stayed dark", new BlockPos(4, 2, 2));
+            else h.succeed();
+        });
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void landedRepeaterLightsALamp(GameTestHelper helper) { landedMachineLightsALamp(helper, Items.REPEATER, be -> {}); }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void landedTransformerLightsALamp(GameTestHelper helper) { landedMachineLightsALamp(helper, Items.COMPARATOR, be -> {}); }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void landedTimerLightsALamp(GameTestHelper helper) {
+        landedMachineLightsALamp(helper, Items.CLOCK, be -> be.setTimerDuration(200));
+    }
+
+    /**
+     * A machine and the redstone block feeding it are pushed together, the source farther from the
+     * piston (so the machine lands first and the source after it): no new pulse, no flip.
+     */
+    private static void landingSourceIsNoEdge(GameTestHelper h, Item item, boolean cutShort) {
+        machineAt(h, 1, item);
+        h.runAfterDelay(2, () -> {
+            if (h.getBlockEntity(new BlockPos(1, 2, 2)) instanceof MachineFrameBlockEntity be) be.setTimerDuration(4);
+            h.setBlock(2, 2, 2, Blocks.REDSTONE_BLOCK);
+        });
+        pistonPush(h, 20, cutShort);
+        Integer[] before = {null};
+        Integer[] last = {null};
+        int[] rises = {0}, tick = {0};
+        h.onEachTick(() -> {
+            int t = ++tick[0];
+            Integer out = outputOf(h.getBlockState(new BlockPos(1, 2, 2)));
+            if (out == null) out = outputOf(h.getBlockState(new BlockPos(2, 2, 2)));
+            if (t == 19) before[0] = out;
+            if (t >= 20 && out != null) {
+                if (last[0] != null && last[0] <= 0 && out > 0) rises[0]++;
+                last[0] = out;
+            }
+            if (t == 60) {
+                if (rises[0] > 0) h.fail("the machine fired " + rises[0] + " time(s) when it and its steady source were moved");
+                else if (item == Items.LEVER && !java.util.Objects.equals(before[0], last[0])) h.fail("the Toggle flipped when it and its steady source were moved");
+                else h.succeed();
+            }
+        });
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void landingSourceDoesNotFireAPulser(GameTestHelper helper) { landingSourceIsNoEdge(helper, Items.STONE_BUTTON, false); }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void landingSourceDoesNotFireAPulserCutShort(GameTestHelper helper) { landingSourceIsNoEdge(helper, Items.STONE_BUTTON, true); }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void landingSourceDoesNotStartATimer(GameTestHelper helper) { landingSourceIsNoEdge(helper, Items.CLOCK, false); }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void landingSourceDoesNotStartATimerCutShort(GameTestHelper helper) { landingSourceIsNoEdge(helper, Items.CLOCK, true); }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void landingSourceDoesNotFlipAToggle(GameTestHelper helper) { landingSourceIsNoEdge(helper, Items.LEVER, false); }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void landingSourceDoesNotFlipAToggleCutShort(GameTestHelper helper) { landingSourceIsNoEdge(helper, Items.LEVER, true); }
+
+    /** A Track and the redstone block beside it are pushed together, the source nearer the piston (it lands after the Track): no pulse. */
+    private static void trackLandingIsNoPulse(GameTestHelper h, boolean cutShort) {
+        h.setBlock(1, 2, 2, Blocks.REDSTONE_BLOCK);
+        h.setBlock(2, 2, 2, ModBlocks.MACHINE_TRACK.get());
+        pistonPush(h, 15, cutShort);
+        int[] tick = {0};
+        h.onEachTick(() -> {
+            int t = ++tick[0];
+            if (t > 15 && trackPower(h, 3, 2, 2) > 0) { h.fail("the moved Track sent a pulse", new BlockPos(3, 2, 2)); return; }
+            if (t == 45) {
+                if (trackPower(h, 3, 2, 2) < 0) h.fail("the Track did not arrive", new BlockPos(3, 2, 2));
+                else h.succeed();
+            }
+        });
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void trackLandingNextToItsSourceIsNoPulse(GameTestHelper helper) { trackLandingIsNoPulse(helper, false); }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void trackLandingNextToItsSourceIsNoPulseCutShort(GameTestHelper helper) { trackLandingIsNoPulse(helper, true); }
+
+    /** Two pulses started at different places and times on one ring of Tracks both die out. */
+    private static void twoPulsesDieInALoop(GameTestHelper h, int gap) {
+        for (int x = 1; x <= 5; x++)
+            for (int z = 1; z <= 5; z++)
+                if (x == 1 || x == 5 || z == 1 || z == 5) h.setBlock(x, 1, z, ModBlocks.MACHINE_TRACK.get());
+        h.runAfterDelay(2, () -> h.setBlock(0, 1, 1, Blocks.REDSTONE_BLOCK));
+        h.runAfterDelay(2 + gap, () -> h.setBlock(6, 1, 3, Blocks.REDSTONE_BLOCK));
+        int[] ticks = {0};
+        h.onEachTick(() -> {
+            if (++ticks[0] < 50) return;
+            for (int x = 1; x <= 5; x++)
+                for (int z = 1; z <= 5; z++)
+                    if ((x == 1 || x == 5 || z == 1 || z == 5) && trackPower(h, x, 1, z) != 0) {
+                        h.fail("a pulse was still going round the ring at Track " + x + "," + z, new BlockPos(x, 1, z));
+                        return;
+                    }
+            if (ticks[0] >= 70) h.succeed();
+        });
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = 120, batch = "tracks")
+    public static void twoPulsesDieInALoopGap1(GameTestHelper helper) { twoPulsesDieInALoop(helper, 1); }
+
+    @GameTest(template = EMPTY, timeoutTicks = 120, batch = "tracks")
+    public static void twoPulsesDieInALoopGap2(GameTestHelper helper) { twoPulsesDieInALoop(helper, 2); }
+
+    @GameTest(template = EMPTY, timeoutTicks = 120, batch = "tracks")
+    public static void twoPulsesDieInALoopGap3(GameTestHelper helper) { twoPulsesDieInALoop(helper, 3); }
+
+    @GameTest(template = EMPTY, timeoutTicks = 120, batch = "tracks")
+    public static void twoPulsesDieInALoopGap5(GameTestHelper helper) { twoPulsesDieInALoop(helper, 5); }
 
     // ==================== Recipes ====================
 
@@ -1930,6 +2078,28 @@ helper.runAfterDelay(60, () -> {
         });
     }
 
+    /**
+     * Two portals registered at an address whose blocks are gone (removed without being broken: a world
+     * edit, a deleted region) don't hold the address: a new ring with that address still lights, and the
+     * two registrations are dropped.
+     */
+    @GameTest(template = EMPTY, batch = "portals")
+    public static void portalsThatAreGoneDoNotHoldTheirAddress(GameTestHelper helper) {
+        String address = String.join(",", java.util.Collections.nCopies(4, "minecraft:netherite_block"));
+        var data = com.ideomancer.machinemod.block.portal.OddstonePortalSavedData.get(helper.getLevel());
+        BlockPos a = helper.absolutePos(new BlockPos(1, 8, 1)), b = helper.absolutePos(new BlockPos(1, 8, 5));
+        data.registerPortal(address, a, "Z", a.above(), 1, 1);
+        data.registerPortal(address, b, "Z", b.above(), 1, 1);
+        buildPortalRing(helper, ModBlocks.COBBLED_ODDSTONE.get(), Blocks.NETHERITE_BLOCK);
+        if (!lightPortal(helper, 2, 1, 3)) {
+            helper.fail("a ring whose address was held by two portals that are gone did not light", new BlockPos(2, 1, 3));
+        } else if (data.getPortal(a) != null || data.getPortal(b) != null) {
+            helper.fail("the registrations of the portals that are gone were kept");
+        } else {
+            helper.succeed();
+        }
+    }
+
     /** The same ring as buildPortalRing, at any z. */
     private static void buildPortalRingAt(GameTestHelper helper, int z, Block frame, Block corner) {
         for (int x = 1; x <= 5; x++) {
@@ -2120,6 +2290,25 @@ helper.runAfterDelay(60, () -> {
      * quarters and over a wide band of distances.
      */
     // Own batch: these generate far-off chunks, and kept apart they leave the other tests' layout as it was.
+    /**
+     * Eight different items dropped into an unlinked portal at once: one is thrown out straight away and
+     * the rest wait (each throw loads or generates ground far away, so a stream of them used to generate
+     * terrain non-stop).
+     */
+    @GameTest(template = EMPTY, timeoutTicks = 100, batch = "portal_throws")
+    public static void unlinkedPortalThrowsOneItemAtATime(GameTestHelper helper) {
+        buildPortalRing(helper, ModBlocks.COBBLED_ODDSTONE.get(), Blocks.RAW_GOLD_BLOCK);
+        if (!lightPortal(helper, 2, 1, 3)) { helper.fail("the ring did not light"); return; }
+        Item[] items = {Items.DIRT, Items.SAND, Items.GRAVEL, Items.OAK_LOG, Items.STICK, Items.APPLE, Items.BREAD, Items.BONE};
+        java.util.List<net.minecraft.world.entity.item.ItemEntity> dropped = new java.util.ArrayList<>();
+        for (Item item : items) dropped.add(helper.spawnItem(item, 3.5F, 2.2F, 3.5F));
+        helper.runAfterDelay(5, () -> {
+            long thrown = dropped.stream().filter(net.minecraft.world.entity.Entity::isRemoved).count();
+            if (thrown == 1) helper.succeed();
+            else helper.fail(thrown + " of 8 items were thrown out at once (1 expected)");
+        });
+    }
+
     @GameTest(template = EMPTY, timeoutTicks = 400, batch = "portal_throws")
     public static void unlinkedPortalThrowsAreRandom(GameTestHelper helper) {
         net.minecraft.server.level.ServerLevel level = helper.getLevel();

@@ -91,6 +91,9 @@ public class MachineTrackBlock extends AbstractMachineBlock {
             int before = machine.getTrackInputs();
             machine.setTrackInputs(now);
             int rising = before < 0 ? 0 : now & ~before;   // -1: first look after an upgrade, record only
+            // Landing from a piston move: the rest of the machine lands around it this tick, and a
+            // steady source arriving beside it is not a new signal. Record only.
+            if (machine.isLanding() || machine.landedWithin(0)) rising = 0;
             if (rising != 0) {
                 Direction from = Direction.from3DDataValue(Integer.numberOfTrailingZeros(rising));
                 receivePulse(level, pos, from, level.getGameTime() * 31 + pos.asLong());

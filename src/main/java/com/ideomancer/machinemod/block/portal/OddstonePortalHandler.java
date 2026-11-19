@@ -162,6 +162,7 @@ public class OddstonePortalHandler {
         BlockPos registrationPos = frameBL; // BL corner is the registration key
         String axisStr = frame.axis == Direction.Axis.X ? "X" : "Z";
 
+        data.dropGone(level, registrationPos, frame.address);
         OddstonePortalSavedData.RegisterResult result =
                 data.registerPortal(frame.address, registrationPos, axisStr,
                         interiorBL, interiorWidth, interiorHeight);

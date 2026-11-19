@@ -218,6 +218,33 @@ public class OddstonePortalSavedData extends SavedData {
     }
 
     /**
+     * Drops registrations at {@code pos} and at {@code address} whose portal blocks are gone. A portal
+     * is unregistered when its blocks are broken; one removed some other way (a world edit, a deleted
+     * or regenerated region, a rollback) stayed registered for good: its address stayed full and its
+     * partner kept sending players to where it used to be. Checked when a frame is lit, so it may load
+     * the old portal's chunk (rare, and only then). Entries without saved geometry are kept.
+     */
+    public void dropGone(net.minecraft.server.level.ServerLevel level, BlockPos pos, String address) {
+        java.util.List<BlockPos> check = new java.util.ArrayList<>();
+        if (portalsByPosition.containsKey(pos)) check.add(pos);
+        BlockPos[] existing = portalsByAddress.get(address);
+        if (existing != null) for (BlockPos p : existing) if (p != null && !check.contains(p)) check.add(p);
+        for (BlockPos p : check) {
+            PortalEntry e = portalsByPosition.get(p);
+            if (e != null && isGone(level, e)) {
+                Ideomod.LOGGER.info("Portal at {} (address [{}]) is gone: dropping its registration", p, e.address);
+                unregisterPortal(p);
+            }
+        }
+    }
+
+    /** True if this registered portal's blocks are no longer there (only judged from saved geometry). */
+    public static boolean isGone(net.minecraft.server.level.ServerLevel level, PortalEntry e) {
+        if (!e.hasGeometry()) return false;
+        return !(level.getBlockState(e.getInteriorBottomLeft()).getBlock() instanceof OddstonePortalBlock);
+    }
+
+    /**
      * Legacy overload without geometry. Used by old code paths or when
      * geometry is unavailable. Teleportation will fall back to live
      * PortalGeometry.detect() calls.

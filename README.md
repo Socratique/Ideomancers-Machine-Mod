@@ -27,7 +27,7 @@ The intro and disclaimers below are the Ideomancer's, written for Ideomod.
 **Work in progress.** Things will change, and some parts are rough (see [Known rough edges](#known-rough-edges)).
 
 **Download:** [the latest jar](https://github.com/Socratique/Ideomancers-Machine-Mod/releases/latest) from this
-repository's Releases page (CurseForge to follow). Put it in the `mods` folder of a Minecraft 1.20.1 Forge install.
+repository's Releases page, or from [CurseForge](https://www.curseforge.com/minecraft/mc-mods/ideomancers-machine-mod). Put it in the `mods` folder of a Minecraft 1.20.1 Forge install.
 It is needed on both the client and the server. To build it yourself, see [Building and running](#building-and-running).
 
 **What changed in each version:** [CHANGELOG.md](CHANGELOG.md).
@@ -36,7 +36,7 @@ It is needed on both the client and the server. To build it yourself, see [Build
 |---|---|
 | Minecraft | 1.20.1 |
 | Loader | Forge 47.x (built against 47.4.10) |
-| Mod version | 0.1.1 |
+| Mod version | 0.1.2 |
 | Java | 17 |
 
 ![Every block the mod adds](docs/media/blocks.png)
@@ -232,7 +232,7 @@ Redstone wire as a solid block. Signal strength drops by 1 per Conductor, as wit
 
 #### Repeater
 
-Outputs full strength (15) while its input is on. The GUI has four buttons for the delay: 1 to 4 redstone ticks. It cannot be locked.
+Outputs full strength (15) while its input is on. The GUI has four buttons for the delay: 1 to 4 redstone ticks. A pulse shorter than the delay comes out as long as the delay, as with a vanilla repeater. It cannot be locked.
 
 #### Toggle
 
@@ -367,7 +367,7 @@ A Machine Base with a barrel in its slot. It holds nine stacks in a 3×3 grid an
 
 - **Each pulse pushes out one item.** A signal turning on, on any face, sends one item out. Holding the signal sends no more; a Pulser or Timer gives a stream.
 - It takes items from the first slot that holds something the output will accept.
-- It takes turns between the faces that can accept items: pipes, chests, hoppers, an Engine's fuel slot, a Placer or another Machine Storage.
+- It takes turns between the faces that can accept items: pipes, chests, hoppers, an Engine's fuel slot or another Machine Storage.
 - **It never pushes to a face that has given it items,** so a pipe feeding it is not fed back. Items put in by hand don't count. It forgets a face once nothing that holds items is left there.
 - Hoppers and pipes can feed it from any side. A hopper directly below it will drain it, as with a chest.
 - A comparator reads how full it is, as with a chest.
@@ -470,7 +470,7 @@ Pictures drawn in the 1.20.1 crafting windows by `tools/renders/recipes.py`, str
 <tr><td align="center"><img src="docs/media/recipes/copper_nugget.png" width="352" alt="Copper Nugget ×9"><br>Copper Nugget ×9</td><td align="center"><img src="docs/media/recipes/copper_ingot_from_nuggets.png" width="352" alt="Copper ingot from nuggets"><br>Copper ingot from nuggets</td></tr>
 </table>
 
-Minecraft 1.20.1 has no copper nugget, so Ideomod adds one (it shows as the iron nugget, tinted copper). Copper nuggets from other mods (the `forge:nuggets/copper` tag) work in these recipes too.
+Minecraft 1.20.1 has no copper nugget, so this mod adds one (it shows as the iron nugget, tinted copper). Copper nuggets from other mods (the `forge:nuggets/copper` tag) work in these recipes too.
 
 ### Oddstone building blocks
 
@@ -515,7 +515,7 @@ On a server, the server's file is the one that counts: each player who joins is 
 | `pulser` | `pulse_duration` | 2 | Pulser output length, in ticks |
 | `seat` | `repeat_interval` | 10 | Ticks between a Machine Seat's pulses while a key is held (2 to 100) |
 
-Commands, both for operators:
+One command, for operators:
 
 - `/machinemod reload` re-reads the config file and sends the new settings to everyone on the server.
 
@@ -544,7 +544,7 @@ Everything in this mod is in Ideomod too, under the same names in Ideomod's name
 You need JDK 17. From the repository root:
 
 ```
-./gradlew build        # builds build/libs/ideomancers-machine-mod-0.1.1.jar
+./gradlew build        # builds build/libs/ideomancers-machine-mod-0.1.2.jar
 ./gradlew runClient    # starts a development client with the mod loaded
 ```
 

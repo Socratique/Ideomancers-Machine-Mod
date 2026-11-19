@@ -42,6 +42,28 @@ public class MovingBlockEntityData {
 
     private static final Map<String, CompoundTag> pendingData = new ConcurrentHashMap<>();
 
+    /** The destination a moving block is being put down at right now, on this thread (set by the piston mixin). */
+    private static final ThreadLocal<BlockPos> LANDING = new ThreadLocal<>();
+
+    /** Called as a moving block starts its tick: it may land in it. Nested landings keep the outer one. */
+    public static void beginLanding(BlockPos pos) {
+        if (LANDING.get() == null) LANDING.set(pos.immutable());
+    }
+
+    /** Called as that tick ends, landed or not. */
+    public static void endLanding(BlockPos pos) {
+        if (pos.equals(LANDING.get())) LANDING.remove();
+    }
+
+    /**
+     * True while a piston is putting a block down at {@code pos} and has not yet handed back its
+     * saved data. Only then: data left behind by a move that never landed (a moving block replaced
+     * by a command, say) does not count, or the block later placed there would read as silent.
+     */
+    public static boolean isLanding(String dimensionKey, BlockPos pos) {
+        return pos.equals(LANDING.get()) && pendingData.containsKey(makeKey(dimensionKey, pos));
+    }
+
     public static void store(String dimensionKey, BlockPos destPos, CompoundTag data) {
         String key = makeKey(dimensionKey, destPos);
         pendingData.put(key, data);

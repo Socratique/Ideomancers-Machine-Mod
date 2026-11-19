@@ -339,6 +339,17 @@ public class MachineFrameBlockEntity extends BlockEntity
 
     /** Game time this block landed from a piston move already outputting (not saved). */
     private long cameBackOnAt = Long.MIN_VALUE;
+    /** Game time this block last landed from a piston move (its data restored); not saved. */
+    private long landedAt = Long.MIN_VALUE;
+
+    /**
+     * True within {@code ticks} ticks after this block landed from a piston move. The rest of its
+     * moving group lands around it in that time (farthest from the piston first), and a steady source
+     * landing next to it is not a new signal.
+     */
+    public boolean landedWithin(int ticks) {
+        return level != null && landedAt != Long.MIN_VALUE && level.getGameTime() - landedAt <= ticks;
+    }
 
     /** Whether this block landed from a piston move in the last 2 ticks, outputting as it was before. */
     /**
@@ -346,8 +357,8 @@ public class MachineFrameBlockEntity extends BlockEntity
      * (vanilla places the block, which updates its neighbours, before the mod restores the data).
      */
     public boolean isLanding() {
-        return level instanceof ServerLevel && com.ideomancer.machinemod.block.movement.MovingBlockEntityData.peek(
-                level.dimension().location().toString(), worldPosition) != null;
+        return level instanceof ServerLevel && com.ideomancer.machinemod.block.movement.MovingBlockEntityData.isLanding(
+                level.dimension().location().toString(), worldPosition);
     }
 
     public boolean cameBackOn() {
@@ -531,6 +542,7 @@ public class MachineFrameBlockEntity extends BlockEntity
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         ContainerHelper.saveAllItems(tag, this.items, true);
+        if (this.pendingEdge != null) tag.putInt(TAG_PENDING_EDGE, this.pendingEdge.get3DDataValue());
         if (this.inputFace != null) {
             tag.putInt(TAG_INPUT_FACE, this.inputFace.get3DDataValue());
         }
@@ -565,6 +577,7 @@ public class MachineFrameBlockEntity extends BlockEntity
         super.load(tag);
         this.items = NonNullList.withSize(1, ItemStack.EMPTY);
         ContainerHelper.loadAllItems(tag, this.items);
+        this.pendingEdge = tag.contains(TAG_PENDING_EDGE) ? Direction.from3DDataValue(tag.getInt(TAG_PENDING_EDGE)) : null;
         rememberSpec();
         if (tag.contains(TAG_INPUT_FACE)) {
             this.inputFace = Direction.from3DDataValue(tag.getInt(TAG_INPUT_FACE));
@@ -777,6 +790,7 @@ public class MachineFrameBlockEntity extends BlockEntity
     @Override
     public void onMovementRestored(Level level, BlockPos pos) {
         if (this.movementPowered) this.cameBackOnAt = level.getGameTime();
+        this.landedAt = level.getGameTime();
         // Scheduled ticks are lost during piston movement. If the block at
         // this position is a redstone machine that uses tick-based processing
         // (Repeater, Transformer, Toggle, Timer, Pulser), schedule a tick so
@@ -857,6 +871,15 @@ public class MachineFrameBlockEntity extends BlockEntity
                     // both fire at delay 1 and tick ordering is non-deterministic —
                     // the sender can expire before the receiver sees the signal.
                     serverLevel.scheduleTick(pos, block, currentlyPowered ? 2 : 1);
+                }
+
+                // It landed while its neighbours were told it was silent (its data was not back yet):
+                // a block that is on tells them again, or a lamp, dust or piston beside it stays off.
+                if (((AbstractMachineBlock) block).getRedstoneOutput(level.getBlockState(pos)) > 0) {
+                    level.updateNeighborsAt(pos, block);
+                    for (net.minecraft.core.Direction dir : net.minecraft.core.Direction.values()) {
+                        level.updateNeighborsAt(pos.relative(dir), block);
+                    }
                 }
             }
         }
