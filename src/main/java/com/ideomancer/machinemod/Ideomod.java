@@ -235,6 +235,8 @@ public class Ideomod {
 
     private void registerPortalEventHandlers() {
         MinecraftForge.EVENT_BUS.register(new EnderPearlPortalHandler());
+        // Items and mobs thrown by unlinked portals into chunks that aren't loaded wait for them to load.
+        MinecraftForge.EVENT_BUS.register(com.ideomancer.machinemod.block.portal.ScatterQueue.class);
         LOGGER.info("Registered ender pearl portal activation handler");
     }
 }

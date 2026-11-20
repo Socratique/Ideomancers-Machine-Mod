@@ -42,10 +42,14 @@ from a last review before the CurseForge release.
   landed before its source. A Track moved with its source sent a pulse (and pushed its Trolleys) on
   landing. A source that moves with them is no longer a new signal; moving up to a source that was
   standing there still fires them, as before.
-- An unlinked portal threw out everything that entered it, each to a new spot 200 to 1000 blocks away,
-  loading or generating the ground there: a hopper or mob farm emptying into one generated terrain
-  non-stop. It now throws out at most one thing that is not a player a second; the rest wait their turn.
-  Players always go at once.
+- An unlinked portal loaded (or generated) the ground at every spot it threw something to, so a hopper or
+  mob farm emptying into one made the server load or generate new land for every item or mob. Items and
+  mobs (the Ideomancer's idea) still each get their own random spot and still go through as fast as they
+  go in, but nothing is loaded for them: if the spot's chunk is loaded they land at once, and if not they
+  wait there, saved with the world, and land when that chunk next loads (someone comes near). A stream
+  spreads thinly over a huge area instead of piling up. As with vanilla portals there is no cap. Players,
+  and thrown ender pearls, are thrown at once as before; a spot over the void is tried again, and after
+  eight tries the thing comes back out where it went in.
 - A portal whose blocks went without being broken (a world edit, a deleted or regenerated region) stayed
   registered: its address stayed taken, and its partner kept sending players to where it had been. Such a
   portal is now dropped when its address is lit again or its partner is used.

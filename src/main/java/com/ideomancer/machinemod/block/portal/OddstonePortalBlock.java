@@ -236,31 +236,10 @@ public class OddstonePortalBlock extends Block {
         if (entry.isLinked()) {
             linkedTeleport(serverLevel, entity, entry, pos, state);
         } else {
-            if (!(entity instanceof net.minecraft.world.entity.player.Player) && !scatterAllowed(serverLevel, entry.pos)) return;
             scatterTeleport(serverLevel, entity);
         }
     }
 
-    /** Per world, per unlinked portal: the game time it last threw out something that is not a player. */
-    private static final java.util.Map<Level, java.util.Map<BlockPos, Long>> LAST_SCATTER = new java.util.WeakHashMap<>();
-    /** Ticks between two non-player throws from one unlinked portal. */
-    private static final int SCATTER_GAP = 20;
-
-    /**
-     * An unlinked portal throws out at most one non-player a second. Each throw lands somewhere new,
-     * 200 to 1000 blocks away, and loads (or generates) the ground there; a hopper or a mob farm
-     * emptying into one used to generate terrain non-stop. What has to wait stays in the portal and
-     * goes once its own cooldown is over. Players always go at once.
-     */
-    private static boolean scatterAllowed(ServerLevel level, BlockPos portal) {
-        java.util.Map<BlockPos, Long> last = LAST_SCATTER.computeIfAbsent(level, l -> new java.util.HashMap<>());
-        long now = level.getGameTime();
-        Long then = last.get(portal);
-        if (then != null && now - then < SCATTER_GAP && now >= then) return false;
-        if (last.size() > 256) last.entrySet().removeIf(e -> now - e.getValue() >= SCATTER_GAP);
-        last.put(portal.immutable(), now);
-        return true;
-    }
 
     /**
      * Teleports the entity to the linked partner portal, preserving their
@@ -603,6 +582,13 @@ public class OddstonePortalBlock extends Block {
     // ========================================================================
 
     private void scatterTeleport(ServerLevel level, Entity entity) {
+        // Items and mobs: their own random spot, and nothing is loaded for them; if the spot's chunk is
+        // not loaded they wait there until it is (ScatterQueue). Players, and thrown ender pearls (which
+        // would teleport their thrower whenever they finally landed), are thrown at once, as before.
+        if (!(entity instanceof ServerPlayer) && !(entity instanceof net.minecraft.world.entity.projectile.ThrownEnderpearl)) {
+            ScatterQueue.throwOut(level, entity);
+            return;
+        }
         BlockPos targetPos = findScatterTarget(level, entity.blockPosition());
         if (targetPos == null) {
             // Every try landed over the void (the End): nothing is thrown out into it.
@@ -663,7 +649,7 @@ public class OddstonePortalBlock extends Block {
 
     /** A random spot in the column, below the ceiling, with a solid floor and two blocks of air; null if none. */
     @Nullable
-    private static BlockPos randomPlaceToStand(ServerLevel level, int x, int z) {
+    static BlockPos randomPlaceToStand(ServerLevel level, int x, int z) {
         int bottom = level.getMinBuildHeight() + 1;
         int top = level.getMinBuildHeight() + level.dimensionType().logicalHeight() - 2;
         java.util.List<Integer> spots = new java.util.ArrayList<>();
@@ -712,7 +698,7 @@ public class OddstonePortalBlock extends Block {
      * The copy keeps the same UUID and everything saved on it (contents, name,
      * leash, health), and the cooldown, so it does not go straight back.
      */
-    private static Entity moveThrough(ServerLevel level, Entity entity, double x, double y, double z,
+    static Entity moveThrough(ServerLevel level, Entity entity, double x, double y, double z,
                                       float yaw, float pitch, Vec3 motion) {
         if (entity instanceof ServerPlayer player) {
             player.teleportTo(level, x, y, z, yaw, pitch);

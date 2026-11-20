@@ -2424,21 +2424,111 @@ helper.runAfterDelay(60, () -> {
      */
     // Own batch: these generate far-off chunks, and kept apart they leave the other tests' layout as it was.
     /**
-     * Eight different items dropped into an unlinked portal at once: one is thrown out straight away and
-     * the rest wait (each throw loads or generates ground far away, so a stream of them used to generate
-     * terrain non-stop).
+     * Eight different items dropped into an unlinked portal at once are all thrown at once, each to its own
+     * random spot. A spot whose chunk isn't loaded loads nothing: the item waits in the list (ScatterQueue)
+     * and lands there, on the ground, when that chunk loads.
      */
-    @GameTest(template = EMPTY, timeoutTicks = 100, batch = "portal_throws")
-    public static void unlinkedPortalThrowsOneItemAtATime(GameTestHelper helper) {
+    @GameTest(template = EMPTY, timeoutTicks = 600, batch = "portal_throws")
+    public static void unlinkedPortalThrowsAStreamThatWaitsForItsChunks(GameTestHelper helper) {
         buildPortalRing(helper, ModBlocks.COBBLED_ODDSTONE.get(), Blocks.RAW_GOLD_BLOCK);
         if (!lightPortal(helper, 2, 1, 3)) { helper.fail("the ring did not light"); return; }
+        net.minecraft.server.level.ServerLevel level = helper.getLevel();
         Item[] items = {Items.DIRT, Items.SAND, Items.GRAVEL, Items.OAK_LOG, Items.STICK, Items.APPLE, Items.BREAD, Items.BONE};
         java.util.List<net.minecraft.world.entity.item.ItemEntity> dropped = new java.util.ArrayList<>();
         for (Item item : items) dropped.add(helper.spawnItem(item, 3.5F, 2.2F, 3.5F));
+        java.util.Map<java.util.UUID, com.ideomancer.machinemod.block.portal.ScatterQueue.Waiting> waiting = new java.util.HashMap<>();
         helper.runAfterDelay(5, () -> {
-            long thrown = dropped.stream().filter(net.minecraft.world.entity.Entity::isRemoved).count();
-            if (thrown == 1) helper.succeed();
-            else helper.fail(thrown + " of 8 items were thrown out at once (1 expected)");
+            long thrown = dropped.stream().filter(e -> e.getRemovalReason() == net.minecraft.world.entity.Entity.RemovalReason.CHANGED_DIMENSION).count();
+            if (thrown != 8) { helper.fail(thrown + " of 8 items were thrown out at once (8 expected)"); return; }
+            java.util.Set<java.util.UUID> ours = new java.util.HashSet<>();
+            for (var e : dropped) ours.add(e.getUUID());
+            for (var w : com.ideomancer.machinemod.block.portal.ScatterQueue.get(level).all()) {
+                java.util.UUID id = w.entity().getUUID("UUID");
+                if (ours.contains(id)) waiting.put(id, w);
+            }
+            if (waiting.isEmpty()) { helper.fail("none of the 8 items is waiting for its chunk: were their far chunks all loaded?"); return; }
+            // Someone goes there: the chunks stay loaded, as they do round a player.
+            for (var w : waiting.values()) {
+                level.setChunkForced(w.x() >> 4, w.z() >> 4, true);
+                level.getChunk(w.x() >> 4, w.z() >> 4);
+            }
+        });
+        int[] tick = {0};
+        helper.onEachTick(() -> {
+            if (++tick[0] <= 6 || waiting.isEmpty()) return;
+            boolean allIn = waiting.keySet().stream().allMatch(id -> level.getEntity(id) != null);
+            if (!allIn && tick[0] < 206) return;   // up to 10 seconds: the chunks load, then a once-a-second check
+            for (var entry : waiting.entrySet()) {
+                net.minecraft.world.entity.Entity e = level.getEntity(entry.getKey());
+                var w = entry.getValue();
+                if (e == null) { helper.fail("an item waiting at " + w.x() + "," + w.z() + " did not land when its chunk loaded"); return; }
+                if (Math.abs(e.getX() - (w.x() + 0.5)) > 1.5 || Math.abs(e.getZ() - (w.z() + 0.5)) > 1.5) {
+                    helper.fail("an item waiting at " + w.x() + "," + w.z() + " landed at " + e.blockPosition());
+                    return;
+                }
+            }
+            for (var w : com.ideomancer.machinemod.block.portal.ScatterQueue.get(level).all()) {
+                if (waiting.containsKey(w.entity().getUUID("UUID"))) { helper.fail("a landed item is still on the waiting list"); return; }
+            }
+            Ideomod.LOGGER.info("[GameTest] stream: 8 thrown at once, {} waited for their chunks and landed when loaded", waiting.size());
+            for (var w : waiting.values()) level.setChunkForced(w.x() >> 4, w.z() >> 4, false);
+            helper.succeed();
+        });
+    }
+
+    /** The waiting list is saved with the world: written out and read back, everything on it is still there. */
+    @GameTest(template = EMPTY, batch = "portal_throws")
+    public static void scatterWaitingListIsSavedWithTheWorld(GameTestHelper helper) {
+        var q = new com.ideomancer.machinemod.block.portal.ScatterQueue();
+        for (int i = 0; i < 3; i++) {
+            var item = new net.minecraft.world.entity.item.ItemEntity(helper.getLevel(), 0, 0, 0, new ItemStack(Items.DIAMOND, i + 1));
+            net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
+            item.save(tag);
+            q.add(new com.ideomancer.machinemod.block.portal.ScatterQueue.Waiting(1000 + i * 40, -500, new BlockPos(5, 64, 5), i, tag));
+        }
+        var back = com.ideomancer.machinemod.block.portal.ScatterQueue.load(q.save(new net.minecraft.nbt.CompoundTag()));
+        java.util.Set<String> before = new java.util.HashSet<>(), after = new java.util.HashSet<>();
+        for (var w : q.all()) before.add(w.x() + "," + w.z() + "," + w.origin() + "," + w.tries() + "," + w.entity());
+        for (var w : back.all()) after.add(w.x() + "," + w.z() + "," + w.origin() + "," + w.tries() + "," + w.entity());
+        if (!before.equals(after)) helper.fail("the waiting list changed when saved and read back: " + before + " -> " + after);
+        else helper.succeed();
+    }
+
+    /**
+     * A thrown thing whose spot turns out to be void (the End) gets another spot; after the last try it is
+     * put back where it went in, as a throw with nowhere to land always was.
+     */
+    @GameTest(template = EMPTY, timeoutTicks = 300, batch = "portal_throws")
+    public static void scatterIntoTheVoidTriesAgainThenComesBack(GameTestHelper helper) {
+        net.minecraft.server.level.ServerLevel end = helper.getLevel().getServer().getLevel(net.minecraft.world.level.Level.END);
+        if (end == null) { helper.fail("no End on this server"); return; }
+        var q = com.ideomancer.machinemod.block.portal.ScatterQueue.get(end);
+        BlockPos origin = new BlockPos(0, 80, 0);
+        net.minecraft.nbt.CompoundTag first = new net.minecraft.nbt.CompoundTag(), last = new net.minecraft.nbt.CompoundTag();
+        var a = new net.minecraft.world.entity.item.ItemEntity(end, 0, 0, 0, new ItemStack(Items.EMERALD));
+        var b = new net.minecraft.world.entity.item.ItemEntity(end, 0, 0, 0, new ItemStack(Items.GOLD_INGOT));
+        a.save(first);
+        b.save(last);
+        int x = 400, z = 400;   // the void between the main island and the outer islands
+        q.add(new com.ideomancer.machinemod.block.portal.ScatterQueue.Waiting(x, z, origin, 0, first));
+        q.add(new com.ideomancer.machinemod.block.portal.ScatterQueue.Waiting(x, z, origin, com.ideomancer.machinemod.block.portal.ScatterQueue.TRIES - 1, last));
+        // The void spot and where they went in are running (forced, as round a player): the list's
+        // once-a-second check finds them.
+        end.setChunkForced(x >> 4, z >> 4, true);
+        end.setChunkForced(0, 0, true);
+        helper.runAfterDelay(100, () -> {
+            end.setChunkForced(x >> 4, z >> 4, false);
+            end.setChunkForced(0, 0, false);
+            if (end.getEntity(a.getUUID()) != null) { helper.fail("an item landed in the void"); return; }
+            var again = q.all().stream().filter(w -> w.entity().getUUID("UUID").equals(a.getUUID())).findFirst();
+            if (again.isEmpty() || again.get().tries() != 1) { helper.fail("the item thrown into the void was not given another spot: " + again); return; }
+            net.minecraft.world.entity.Entity back = end.getEntity(b.getUUID());
+            if (back == null || back.blockPosition().distManhattan(origin) > 3) {
+                helper.fail("after its last try the item did not come back where it went in: " + (back == null ? "missing" : back.blockPosition()));
+                return;
+            }
+            back.discard();
+            helper.succeed();   // the emerald's retry is left waiting: it is far off
         });
     }
 
