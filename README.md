@@ -90,7 +90,7 @@ The rule:
 
 - From the moved block, the mod looks along the six axis lines (not diagonals), up to 12 blocks each way (set in the config).
 - The first block of the **same channel** found in each direction is linked and moves too. Whatever sits in between, solid or not, is ignored.
-- Links chain: each linked block looks along its own six lines.
+- Links chain: each linked block looks along its own six lines. They only reach blocks in loaded chunks.
 - Every block type is its own channel, so there are twelve: Oddstone, Cobbled Oddstone, Oddstone Bricks, and the wall, stairs and slab of each. Oddstone never links with Cobbled Oddstone.
 - A linked block moves the way any pushed block does. It pushes what is in front of it and brings along anything stuck to it.
 - Everything counts toward the one piston push limit (12, or more with [Machine Braces](#brace)).
@@ -162,8 +162,8 @@ A portal frame is an upright rectangle of Cobbled Oddstone with a mineral block 
 - **Corner blocks:** blocks of coal, iron, copper, gold, redstone, lapis, diamond, emerald, netherite, quartz or amethyst, or raw iron, raw copper or raw gold blocks. Copper counts as copper at any stage of oxidation, waxed or not, so a copper corner that weathers keeps the portal open.
 - **Lighting it:** throw an ender pearl at the frame. The pearl is used up and you are not teleported by it.
 - **Address:** the four corner blocks are the portal's address. It reads the same from both sides.
-- **Linking:** the first portal with a given address is unlinked. A second portal with the same address, in the same dimension, links to it. A third will not light.
-- **Linked portals:** walking in puts you at the matching spot in the other portal, facing out of it. This works between portals of different sizes.
+- **Linking:** the first portal with a given address is unlinked. A second portal with the same address, in the same dimension, links to it. A third will not light. A portal that was removed without being broken (by a world edit, say) is forgotten once its address is lit again or its partner is used.
+- **Linked portals:** walking in puts you at the matching spot in the other portal, facing out of it. This works between portals of different sizes; you always come out wholly inside the opening.
 - **Unlinked portals:** walking in throws you 200 to 1000 blocks in a random direction, onto the surface, and costs 5 hearts. In the Nether you land at a random spot under the roof instead. Things that aren't alive are thrown the same way but take no damage. Items and mobs each get their own random spot too, but nothing is loaded for them: if that spot isn't loaded they wait there, saved with the world, and land when someone comes near. A stream of them goes through as fast as it goes in and spreads far and wide.
 - **What goes through:** as with a nether portal, players, mobs, dropped items, arrows and other projectiles, and empty minecarts and boats. Riders, the vehicles carrying them, and bosses do not. Anything moving keeps moving, turned to come out of the far portal.
 - **Cooldown:** 4 seconds. As with a nether portal, staying in the portal keeps the cooldown going, so something that stays in the far portal does not bounce back; it has to leave first.
@@ -216,6 +216,7 @@ Things all machine blocks share:
 
 - **They stick together.** A Machine Base sticks to every machine block. A specialised block sticks only to its own kind and to Machine Bases. So a Track does not stick to a Trolley, and a Piston does not stick to a Sticky Piston.
 - **They keep their contents when moved.** Pistons can push them, and the slot item, settings, timers, fuel and held items all survive the move.
+- **They keep working while moved.** A circuit carried by a flying machine carries on between moves, including moves cut short by another piston (0-tick engines). An Engine keeps its count while carried. A block moved together with the redstone that feeds it doesn't take that as a new signal; moved up to a source that was already standing there, it does.
 - **Slime can grab them, they cannot grab slime.** The exception is a switched-on [Grabber](#grabbers).
 - **They drop as what they are.** A broken Machine Timer drops a Machine Timer with its clock inside. The creative tab has every kind ready-made.
 - **Settings reset on a swap.** Changing the slot item makes a new block, so a new Repeater starts at delay 1.
@@ -223,6 +224,8 @@ Things all machine blocks share:
 ### The redstone blocks
 
 Repeater, Toggle, Transformer, Timer, Pulser and Engine share one model. The face receiving the strongest signal is the **input**. The block outputs on the **other five faces**, and it powers through solid blocks as a vanilla repeater does. Each has a coloured indicator that is dark when off and red when on.
+
+Every signal turning on counts, even a pulse of a single tick (shorter than these blocks take to react): a Toggle flips, a Timer starts, a Pulser fires, a Repeater passes it on.
 
 ![Machine logic blocks](docs/media/logic.gif)
 
@@ -314,7 +317,7 @@ A slime block or honey block with a switch. Each redstone pulse flips it on or o
 - **Off:** it sticks only to machine blocks and active frames.
 - **On:** it also grabs as a slime block (Slime Grabber) or honey block (Honey Grabber) does. Like slime, it grabs only when it is the one moving: a machine block pushed past or under it does not drag it along (unless that block sticks to Grabbers anyway, as a Machine Base does).
 
-For one tick after being moved by a piston, Grabbers and Toggles ignore redstone changes, so a contraption does not flip its own switches while its parts land.
+For one tick after being moved by a piston (a move cut short included), Grabbers, Toggles and Engines ignore redstone changes, so a contraption does not flip its own switches while its parts land.
 
 ### Mining
 

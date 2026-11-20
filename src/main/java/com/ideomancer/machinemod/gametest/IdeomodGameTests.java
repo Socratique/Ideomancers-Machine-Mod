@@ -407,6 +407,7 @@ public class IdeomodGameTests {
         });
     }
 
+
     // ==================== Machine Base look ====================
 
     /**
@@ -2428,7 +2429,9 @@ helper.runAfterDelay(60, () -> {
      * random spot. A spot whose chunk isn't loaded loads nothing: the item waits in the list (ScatterQueue)
      * and lands there, on the ground, when that chunk loads.
      */
-    @GameTest(template = EMPTY, timeoutTicks = 600, batch = "portal_throws")
+    // Own batch: the other throw tests generate dozens of far chunks at once, and a waiting item only lands
+    // once its chunk's entities are running, which needs the land round it generated too.
+    @GameTest(template = EMPTY, timeoutTicks = 1500, batch = "portal_stream")
     public static void unlinkedPortalThrowsAStreamThatWaitsForItsChunks(GameTestHelper helper) {
         buildPortalRing(helper, ModBlocks.COBBLED_ODDSTONE.get(), Blocks.RAW_GOLD_BLOCK);
         if (!lightPortal(helper, 2, 1, 3)) { helper.fail("the ring did not light"); return; }
@@ -2457,11 +2460,20 @@ helper.runAfterDelay(60, () -> {
         helper.onEachTick(() -> {
             if (++tick[0] <= 6 || waiting.isEmpty()) return;
             boolean allIn = waiting.keySet().stream().allMatch(id -> level.getEntity(id) != null);
-            if (!allIn && tick[0] < 206) return;   // up to 10 seconds: the chunks load, then a once-a-second check
+            if (!allIn && tick[0] < 1206) return;   // up to a minute: the chunks and the land round them generate, then a once-a-second check
             for (var entry : waiting.entrySet()) {
                 net.minecraft.world.entity.Entity e = level.getEntity(entry.getKey());
                 var w = entry.getValue();
-                if (e == null) { helper.fail("an item waiting at " + w.x() + "," + w.z() + " did not land when its chunk loaded"); return; }
+                if (e == null) {
+                    var still = com.ideomancer.machinemod.block.portal.ScatterQueue.get(level).all().stream()
+                            .filter(x -> x.entity().getUUID("UUID").equals(entry.getKey())).findFirst();
+                    long ck = net.minecraft.world.level.ChunkPos.asLong(w.x() >> 4, w.z() >> 4);
+                    helper.fail("an item waiting at " + w.x() + "," + w.z() + " did not land when its chunk loaded ("
+                            + (still.isPresent() ? "still waiting, tries " + still.get().tries() + " at " + still.get().x() + "," + still.get().z() : "no longer waiting")
+                            + "; chunk loaded " + (level.getChunkSource().getChunkNow(w.x() >> 4, w.z() >> 4) != null)
+                            + ", entities ticking " + level.isPositionEntityTicking(new BlockPos(w.x(), 64, w.z())) + ")");
+                    return;
+                }
                 if (Math.abs(e.getX() - (w.x() + 0.5)) > 1.5 || Math.abs(e.getZ() - (w.z() + 0.5)) > 1.5) {
                     helper.fail("an item waiting at " + w.x() + "," + w.z() + " landed at " + e.blockPosition());
                     return;
@@ -2523,7 +2535,8 @@ helper.runAfterDelay(60, () -> {
             var again = q.all().stream().filter(w -> w.entity().getUUID("UUID").equals(a.getUUID())).findFirst();
             if (again.isEmpty() || again.get().tries() != 1) { helper.fail("the item thrown into the void was not given another spot: " + again); return; }
             net.minecraft.world.entity.Entity back = end.getEntity(b.getUUID());
-            if (back == null || back.blockPosition().distManhattan(origin) > 3) {
+            // Where it came back out across the ground; it falls from there, as a dropped item does.
+            if (back == null || Math.abs(back.getBlockX() - origin.getX()) > 3 || Math.abs(back.getBlockZ() - origin.getZ()) > 3) {
                 helper.fail("after its last try the item did not come back where it went in: " + (back == null ? "missing" : back.blockPosition()));
                 return;
             }
