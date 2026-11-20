@@ -4,7 +4,7 @@ What changed in each version of the Ideomancer's Machine Mod, newest first. Down
 [Releases page](https://github.com/Socratique/Ideomancers-Machine-Mod/releases) and on CurseForge.
 Details of every feature are in the [README](README.md).
 
-## 0.1.2 (2026-11-19) — Alpha
+## 0.1.2 (2026-11-20) — Alpha
 
 The Machine Track now carries a pulse, machine circuits keep working on moving machines, and fixes
 from a last review before the CurseForge release.
