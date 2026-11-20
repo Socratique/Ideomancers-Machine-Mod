@@ -203,6 +203,18 @@ public abstract class AbstractMachineBlock extends Block implements EntityBlock,
         return IMachineFamily.canMachineFamilyStickTo(getMachineType(), other);
     }
 
+    /**
+     * Whether a piston is setting this block down. Vanilla says so (movedByPiston) when a move runs its
+     * course, but a move cut short (finalTick: one piston's move interrupted by another, as in fast
+     * flying-machine engines) places the block as a plain placement. The mod marks that landing itself
+     * (MovingBlockEntityData), so both count as a piston landing.
+     */
+    public static boolean placedByPiston(Level level, BlockPos pos, boolean movedByPiston) {
+        return movedByPiston || (!level.isClientSide()
+                && com.ideomancer.machinemod.block.movement.MovingBlockEntityData.isLanding(
+                        level.dimension().location().toString(), pos));
+    }
+
     // ========================================================================
     // LIFECYCLE -- FrameActivation recalculation
     // ========================================================================
@@ -210,6 +222,7 @@ public abstract class AbstractMachineBlock extends Block implements EntityBlock,
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos,
                          BlockState oldState, boolean movedByPiston) {
+        movedByPiston = placedByPiston(level, pos, movedByPiston);  // a snapped (0-tick) move too
         super.onPlace(state, level, pos, oldState, movedByPiston);
         if (!level.isClientSide() && !state.is(oldState.getBlock())) {
             FrameActivation.markDirty(level, pos);

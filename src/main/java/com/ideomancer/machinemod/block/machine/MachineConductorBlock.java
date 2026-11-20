@@ -330,6 +330,7 @@ public class MachineConductorBlock extends AbstractMachineBlock {
      */
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        movedByPiston = placedByPiston(level, pos, movedByPiston);  // a snapped (0-tick) move too
         // Added !movedByPiston guard. During piston movement,
         // block entity data is restored via IPistonMovable.loadMovementData.
         // onMovementRestored handles rescheduling evaluation.

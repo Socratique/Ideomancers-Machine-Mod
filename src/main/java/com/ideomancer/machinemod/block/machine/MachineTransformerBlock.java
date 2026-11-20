@@ -273,6 +273,7 @@ public class MachineTransformerBlock extends AbstractMachineBlock {
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos,
                          BlockState oldState, boolean movedByPiston) {
+        movedByPiston = placedByPiston(level, pos, movedByPiston);  // a snapped (0-tick) move too
         // Added !movedByPiston guard. During piston movement,
         // onMovementRestored already handles rescheduling the evaluation tick.
         if (!oldState.is(state.getBlock()) && !level.isClientSide() && !movedByPiston) {

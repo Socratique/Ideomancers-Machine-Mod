@@ -319,6 +319,7 @@ public class MachineEngineBlock extends AbstractMachineBlock {
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos,
                          BlockState oldState, boolean movedByPiston) {
+        movedByPiston = placedByPiston(level, pos, movedByPiston);  // a snapped (0-tick) move too
         // Added !movedByPiston guard. During piston movement,
         // block entity data is restored via IPistonMovable.loadMovementData.
         // Running the absorption scan would overwrite that restored state.

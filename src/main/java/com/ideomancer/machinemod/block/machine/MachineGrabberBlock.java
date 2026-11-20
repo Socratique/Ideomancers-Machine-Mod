@@ -189,6 +189,7 @@ public class MachineGrabberBlock extends AbstractMachineBlock {
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos,
                          BlockState oldState, boolean movedByPiston) {
+        movedByPiston = placedByPiston(level, pos, movedByPiston);  // a snapped (0-tick) move too
         if (!level.isClientSide() && !state.is(oldState.getBlock())) {
             if (movedByPiston) {
                 // Piston placement: suppress edge detection for 1 tick while

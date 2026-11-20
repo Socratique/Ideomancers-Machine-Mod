@@ -268,6 +268,7 @@ public class MachineRepeaterBlock extends AbstractMachineBlock {
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos,
                          BlockState oldState, boolean movedByPiston) {
+        movedByPiston = placedByPiston(level, pos, movedByPiston);  // a snapped (0-tick) move too
         // Added !movedByPiston guard. During piston movement,
         // onMovementRestored already handles rescheduling the evaluation tick.
         // Scheduling a tick here could cause premature re-evaluation before

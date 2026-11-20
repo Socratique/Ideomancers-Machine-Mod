@@ -42,6 +42,7 @@ public class MachineFrameBlock extends AbstractMachineBlock {
 
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        movedByPiston = placedByPiston(level, pos, movedByPiston);  // a snapped (0-tick) move too
         super.onPlace(state, level, pos, oldState, movedByPiston);
         updatePowered(state, level, pos);   // after a piston move or a swap back from a specialization
     }

@@ -132,6 +132,7 @@ public class MachineStorageBlock extends AbstractMachineBlock {
 
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        movedByPiston = placedByPiston(level, pos, movedByPiston);  // a snapped (0-tick) move too
         super.onPlace(state, level, pos, oldState, movedByPiston);
         if (!level.isClientSide() && !state.is(oldState.getBlock())
                 && level.getBlockEntity(pos) instanceof MachineStorageBlockEntity storage) {

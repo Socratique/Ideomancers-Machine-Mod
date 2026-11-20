@@ -32,9 +32,16 @@ from a last review before the CurseForge release.
   its input side included, before the rest of its state came back. A ring of Pulsers moved mid-loop could
   fire backwards. It now stays silent for that moment, then tells its neighbours it is on (before, a lamp,
   dust or piston beside a Repeater, Transformer or Timer that landed on stayed off).
+- Machines on fast flying machines: when one piston's move is cut short by another (a 0-tick engine), the
+  moved blocks snap to their place as a plain block placement, and the machine blocks didn't know they
+  had been moved. An Engine restarted its count at every such landing (on a fast machine it never fired),
+  a Toggle could flip on its own neighbours landing, and a line of Conductors fed by a Transformer could
+  read 0. They now treat a snapped landing like any other piston landing: an Engine keeps counting while
+  carried, and circuits keep their rhythm.
 - A Pulser or Timer moved together with the steady signal feeding it fired again on landing when it
   landed before its source. A Track moved with its source sent a pulse (and pushed its Trolleys) on
-  landing. A steady source landing beside them is no longer a new signal.
+  landing. A source that moves with them is no longer a new signal; moving up to a source that was
+  standing there still fires them, as before.
 - An unlinked portal threw out everything that entered it, each to a new spot 200 to 1000 blocks away,
   loading or generating the ground there: a hopper or mob farm emptying into one generated terrain
   non-stop. It now throws out at most one thing that is not a player a second; the rest wait their turn.

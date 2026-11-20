@@ -91,9 +91,15 @@ public class MachineTrackBlock extends AbstractMachineBlock {
             int before = machine.getTrackInputs();
             machine.setTrackInputs(now);
             int rising = before < 0 ? 0 : now & ~before;   // -1: first look after an upgrade, record only
-            // Landing from a piston move: the rest of the machine lands around it this tick, and a
-            // steady source arriving beside it is not a new signal. Record only.
-            if (machine.isLanding() || machine.landedWithin(0)) rising = 0;
+            // Just landed from a piston move: a source that moved with it (part of the same machine,
+            // landing around it) is not a new signal. A source that was standing there still is.
+            if (rising != 0 && (machine.isLanding() || machine.landedWithin(2))) {
+                for (Direction d : Direction.values()) {
+                    int bit = 1 << d.get3DDataValue();
+                    if ((rising & bit) != 0 && com.ideomancer.machinemod.block.movement.MovingBlockEntityData
+                            .movedWithin(level, pos.relative(d), 2)) rising &= ~bit;
+                }
+            }
             if (rising != 0) {
                 Direction from = Direction.from3DDataValue(Integer.numberOfTrailingZeros(rising));
                 receivePulse(level, pos, from, level.getGameTime() * 31 + pos.asLong());
@@ -104,6 +110,7 @@ public class MachineTrackBlock extends AbstractMachineBlock {
 
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        movedByPiston = placedByPiston(level, pos, movedByPiston);  // a snapped (0-tick) move too
         if (level.isClientSide() || oldState.is(this)) return;
         // A Track set down next to a signal that is already on does not pulse: only a rising edge does.
         if (level.getBlockEntity(pos) instanceof MachineFrameBlockEntity machine) {

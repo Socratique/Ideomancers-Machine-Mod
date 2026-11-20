@@ -1286,6 +1286,16 @@ helper.runAfterDelay(60, () -> {
     /** halfPeriod: piston driver on for this many ticks, then off as long; 0 = still. */
     private static void runCircuit(GameTestHelper h, Part[] parts, int frameTo, int halfPeriod,
                                    java.util.function.BiFunction<java.util.List<Integer[]>, int[], String> check) {
+        runCircuit(h, parts, frameTo, halfPeriod, false, check);
+    }
+
+    /**
+     * instant: every move is cut short, the moving blocks snapped to where they are going (vanilla's
+     * finalTick, the path a fast flying-machine engine's moves take: the blocks are placed as a plain
+     * block placement, not a piston landing). Farthest from the piston first.
+     */
+    private static void runCircuit(GameTestHelper h, Part[] parts, int frameTo, int halfPeriod, boolean instant,
+                                   java.util.function.BiFunction<java.util.List<Integer[]>, int[], String> check) {
         boolean moving = halfPeriod > 0;
         for (int x = 1; x <= frameTo; x++) h.setBlock(x, 1, 2, ModBlocks.IRON_FRAME.get());
         for (Part p : parts) {
@@ -1302,6 +1312,14 @@ helper.runAfterDelay(60, () -> {
         int[] tick = {0};
         h.onEachTick(() -> {
             int t = ++tick[0];
+            if (instant) {
+                for (int x = frameTo + 2; x >= 0; x--) {
+                    for (int y = 1; y <= 2; y++) {
+                        if (h.getBlockEntity(new BlockPos(x, y, 2)) instanceof net.minecraft.world.level.block.piston.PistonMovingBlockEntity m
+                                && !m.isSourcePiston()) m.finalTick();
+                    }
+                }
+            }
             if (moving && t >= moveFrom && t < moveTo) {
                 boolean on = ((t - moveFrom) / halfPeriod) % 2 == 0;
                 h.setBlock(0, 0, 2, on ? Blocks.REDSTONE_BLOCK : Blocks.STONE);
@@ -1315,7 +1333,12 @@ helper.runAfterDelay(60, () -> {
             readings.add(row);
             if (t == end) {
                 String problem = check.apply(readings, new int[]{OBSERVE, moving ? MOVE_TICKS : 0, AFTER});
+                Ideomod.LOGGER.info("[CIRCUIT] ^ {} half={} snapped={}: {}", java.util.Arrays.stream(parts).map(pt -> pt.item().toString()).toList(),
+                        halfPeriod, instant, problem == null ? "ok" : problem);
                 if (stripOffset(h, parts) != 0) problem = "the circuit did not come back to rest at its start" + (problem == null ? "" : "; " + problem);
+                // Take the circuit down: a finished test stays standing, and a clock left running beside
+                // the next batch's tests (laid out over the same ground) fed signals into them.
+                for (int x = 0; x <= frameTo + 3; x++) for (int y = 0; y <= 2; y++) h.setBlock(x, y, 2, Blocks.AIR);
                 if (problem == null) h.succeed(); else h.fail(problem);
             }
         });
@@ -1525,6 +1548,47 @@ helper.runAfterDelay(60, () -> {
     }
 
     /**
+     * The circuits on the fast piston with every move snapped short (a 0-tick flying-machine engine).
+     * Landed blocks get ticks of their own between moves here, so the Engine has to keep firing while
+     * carried: at least half its still rate (it pauses a tick to settle after each landing).
+     */
+    @GameTest(template = EMPTY, timeoutTicks = 700, batch = "circuits0")
+    public static void circuitClockFlipsAToggleSnapped(GameTestHelper helper) {
+        runCircuit(helper, clockToggleCircuit(), 3, 3, true, (r, ph) -> clockFlipsToggle(r, ph, 1, 2, 10, 12));
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = 700, batch = "circuits0")
+    public static void circuitTimerChainSnapped(GameTestHelper helper) {
+        runCircuit(helper, timerChainCircuit(), 5, 3, true, (r, ph) -> clockFlipsToggle(r, ph, 1, 4, 20, 6));
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = 700, batch = "circuits0")
+    public static void circuitTransformerHoldsItsLevelSnapped(GameTestHelper helper) {
+        runCircuit(helper, transformerCircuit(), 4, 3, true, IdeomodGameTests::transformerHolds);
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = 700, batch = "circuits0")
+    public static void circuitWirelessFlipsAToggleSnapped(GameTestHelper helper) {
+        runCircuit(helper, wirelessCircuit(ModBlocks.ODDSTONE_BRICK_WALL.get().asItem()), 6, 3, true, (r, ph) -> clockFlipsToggle(r, ph, 1, 4, 10, 12));
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = 700, batch = "circuits0")
+    public static void circuitPulserFlipsAToggleSnapped(GameTestHelper helper) {
+        runCircuit(helper, pulserCircuit(), 4, 3, true, (r, ph) -> clockFlipsToggle(r, ph, 1, 3, 10, 12));
+    }
+
+    /** Slower, with time to work between moves: here the Engines have to keep firing while carried. */
+    @GameTest(template = EMPTY, timeoutTicks = 700, batch = "circuits0")
+    public static void circuitClockFlipsAToggleSnappedSlowly(GameTestHelper helper) {
+        runCircuit(helper, clockToggleCircuit(), 3, 10, true, (r, ph) -> clockFlipsToggle(r, ph, 1, 2, 10, 15));
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = 700, batch = "circuits0")
+    public static void circuitPulserFlipsAToggleSnappedSlowly(GameTestHelper helper) {
+        runCircuit(helper, pulserCircuit(), 4, 10, true, (r, ph) -> clockFlipsToggle(r, ph, 1, 3, 10, 15));
+    }
+
+    /**
      * A pulse of one tick (shorter than the 2-tick reaction time) still counts: a Toggle flips, a Timer
      * fires, a Repeater outputs (for its delay, as a vanilla repeater stretches a short pulse).
      */
@@ -1565,11 +1629,21 @@ helper.runAfterDelay(60, () -> {
         ((MachineFrameBlockEntity) h.getBlockEntity(new BlockPos(x, 2, 2))).setItem(0, new ItemStack(item));
     }
 
-    /** A piston at (0,2,2) facing east, fired at tick {@code at}; {@code cutShort}: power off the next tick (the move snaps to its end). */
+    /**
+     * A piston at (0,2,2) facing east, fired at tick {@code at}. {@code cutShort}: the next tick the moved
+     * blocks are snapped to their place (vanilla's finalTick, as when a move is cut short by another
+     * piston in a 0-tick engine), farthest first, and the piston is switched off.
+     */
     private static void pistonPush(GameTestHelper h, int at, boolean cutShort) {
         h.setBlock(0, 2, 2, Blocks.PISTON.defaultBlockState().setValue(PistonBaseBlock.FACING, Direction.EAST));
         h.runAfterDelay(at, () -> h.setBlock(0, 1, 2, Blocks.REDSTONE_BLOCK));
-        if (cutShort) h.runAfterDelay(at + 1, () -> h.setBlock(0, 1, 2, Blocks.STONE));
+        if (cutShort) h.runAfterDelay(at + 1, () -> {
+            for (int x = 6; x >= 1; x--) {
+                if (h.getBlockEntity(new BlockPos(x, 2, 2)) instanceof net.minecraft.world.level.block.piston.PistonMovingBlockEntity m
+                        && !m.isSourcePiston()) m.finalTick();
+            }
+            h.setBlock(0, 1, 2, Blocks.STONE);
+        });
     }
 
     /**
@@ -1672,6 +1746,65 @@ helper.runAfterDelay(60, () -> {
 
     @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
     public static void trackLandingNextToItsSourceIsNoPulseCutShort(GameTestHelper helper) { trackLandingIsNoPulse(helper, true); }
+
+    /**
+     * What must not change: a machine moved up to a redstone block that was standing there already sees a
+     * new signal and fires (only a source that moved with it is not new).
+     */
+    private static void arrivingAtAStandingSourceFires(GameTestHelper h, Item item, boolean cutShort) {
+        machineAt(h, 1, item);
+        h.setBlock(3, 2, 2, Blocks.REDSTONE_BLOCK);   // not touching the machine until it moves
+        h.runAfterDelay(2, () -> {
+            if (h.getBlockEntity(new BlockPos(1, 2, 2)) instanceof MachineFrameBlockEntity be) be.setTimerDuration(4);
+        });
+        pistonPush(h, 15, cutShort);
+        boolean[] fired = {false};
+        int[] tick = {0};
+        h.onEachTick(() -> {
+            int t = ++tick[0];
+            Integer out = outputOf(h.getBlockState(new BlockPos(2, 2, 2)));
+            if (t > 15 && out != null && out > 0) fired[0] = true;
+            if (t == 45) {
+                if (fired[0]) h.succeed();
+                else h.fail("moved up to a redstone block that was there already, the machine did not fire", new BlockPos(2, 2, 2));
+            }
+        });
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void pulserMovedUpToAStandingSourceFires(GameTestHelper helper) { arrivingAtAStandingSourceFires(helper, Items.STONE_BUTTON, false); }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void pulserSnappedUpToAStandingSourceFires(GameTestHelper helper) { arrivingAtAStandingSourceFires(helper, Items.STONE_BUTTON, true); }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void timerMovedUpToAStandingSourceFires(GameTestHelper helper) { arrivingAtAStandingSourceFires(helper, Items.CLOCK, false); }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void timerSnappedUpToAStandingSourceFires(GameTestHelper helper) { arrivingAtAStandingSourceFires(helper, Items.CLOCK, true); }
+
+    /** What must not change: a redstone block pushed up to a Track that is standing still starts a pulse. */
+    private static void sourcePushedUpToATrackPulses(GameTestHelper h, boolean cutShort) {
+        h.setBlock(1, 2, 2, Blocks.REDSTONE_BLOCK);
+        h.setBlock(3, 2, 2, ModBlocks.MACHINE_TRACK.get());
+        pistonPush(h, 15, cutShort);
+        boolean[] pulsed = {false};
+        int[] tick = {0};
+        h.onEachTick(() -> {
+            int t = ++tick[0];
+            if (t > 15 && trackPower(h, 3, 2, 2) > 0) pulsed[0] = true;
+            if (t == 45) {
+                if (pulsed[0]) h.succeed();
+                else h.fail("a redstone block pushed up to a Track did not start a pulse", new BlockPos(3, 2, 2));
+            }
+        });
+    }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void sourcePushedUpToATrackPulses(GameTestHelper helper) { sourcePushedUpToATrackPulses(helper, false); }
+
+    @GameTest(template = EMPTY, timeoutTicks = 80, batch = "landing")
+    public static void sourceSnappedUpToATrackPulses(GameTestHelper helper) { sourcePushedUpToATrackPulses(helper, true); }
 
     /** Two pulses started at different places and times on one ring of Tracks both die out. */
     private static void twoPulsesDieInALoop(GameTestHelper h, int gap) {

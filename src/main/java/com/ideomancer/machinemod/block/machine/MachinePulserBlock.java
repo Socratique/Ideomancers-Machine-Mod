@@ -259,9 +259,12 @@ public class MachinePulserBlock extends AbstractMachineBlock {
             if (currentInput != null) {
                 int inputSignal = MachineRedstoneHelper.getIncomingSignalFromFace(level, pos, currentInput, shouldSignal);
 
-                // With no edge seen, a lit input turns it on only if it has not just landed: a steady
-                // source landing beside it, part of the same moving machine, is not a new signal.
-                if (edge != null || (inputSignal > 0 && !machineBE.landedWithin(2))) {
+                // With no edge seen, a lit input turns it on, unless this block and the block feeding it
+                // have just landed together: a steady source that is part of the same moving machine is
+                // not a new signal. (Moving up to a source that was standing there still fires it.)
+                boolean movedWithItsSource = machineBE.landedWithin(2)
+                        && com.ideomancer.machinemod.block.movement.MovingBlockEntityData.movedWithin(level, pos.relative(currentInput), 2);
+                if (edge != null || (inputSignal > 0 && !movedWithItsSource)) {
                     // Start the pulse — read duration from config
                     int duration = IdeomodConfig.getPulserPulseDuration();
                     machineBE.setPulserTicksRemaining(duration);
@@ -340,6 +343,7 @@ public class MachinePulserBlock extends AbstractMachineBlock {
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos,
                          BlockState oldState, boolean movedByPiston) {
+        movedByPiston = placedByPiston(level, pos, movedByPiston);  // a snapped (0-tick) move too
         // Added !movedByPiston guard. During piston movement,
         // block entity data (inputFace, inputWasLow, pulserTicksRemaining) is
         // restored via IPistonMovable.loadMovementData. Running the absorption

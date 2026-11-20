@@ -50,6 +50,29 @@ public class MovingBlockEntityData {
         if (LANDING.get() == null) LANDING.set(pos.immutable());
     }
 
+    /** Per world: the game time a moving block (any block, not only machines) last landed at each position. */
+    private static final Map<net.minecraft.world.level.Level, Map<Long, Long>> LANDED = new java.util.WeakHashMap<>();
+
+    /** Called when a moving block has been put down at {@code pos} (server only). */
+    public static void markLanded(net.minecraft.world.level.Level level, BlockPos pos) {
+        Map<Long, Long> landed = LANDED.computeIfAbsent(level, l -> new java.util.HashMap<>());
+        long now = level.getGameTime();
+        if (landed.size() > 4096) landed.values().removeIf(t -> now - t > 4);
+        landed.put(pos.asLong(), now);
+    }
+
+    /**
+     * True if the block at {@code pos} came there by a piston move in the last {@code ticks} ticks, or is
+     * being put down there right now. Lets a block that just landed tell a neighbour that moved with it
+     * (part of the same machine) from one that was standing there already.
+     */
+    public static boolean movedWithin(net.minecraft.world.level.Level level, BlockPos pos, int ticks) {
+        if (pos.equals(LANDING.get())) return true;
+        Map<Long, Long> landed = LANDED.get(level);
+        Long t = landed == null ? null : landed.get(pos.asLong());
+        return t != null && level.getGameTime() - t <= ticks;
+    }
+
     /** Called as that tick ends, landed or not. */
     public static void endLanding(BlockPos pos) {
         if (pos.equals(LANDING.get())) LANDING.remove();

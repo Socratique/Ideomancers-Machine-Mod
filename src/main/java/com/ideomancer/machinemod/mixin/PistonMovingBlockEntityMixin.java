@@ -128,6 +128,7 @@ public abstract class PistonMovingBlockEntityMixin implements MovingDataHolder {
         BlockState currentState = level.getBlockState(pos);
         if (currentState.is(Blocks.MOVING_PISTON)) return;
 
+        MovingBlockEntityData.markLanded(level, pos);
         machinemod$tryRestore(level, pos, (MovingDataHolder) (Object) blockEntity);
     }
 
@@ -148,6 +149,7 @@ public abstract class PistonMovingBlockEntityMixin implements MovingDataHolder {
 
         if (level == null || level.isClientSide()) return;
 
+        MovingBlockEntityData.markLanded(level, pos);
         machinemod$tryRestore(level, pos, this);
     }
 
