@@ -25,7 +25,7 @@ import java.nio.file.Path;
 /**
  * Living alongside Ideomod.
  *
- * The Machine Mod is a cut of Ideomod: everything in it, Ideomod has too, under the same names in
+ * Ideomancer's Machines is a cut of Ideomod: everything in it, Ideomod has too, under the same names in
  * Ideomod's namespace (machinemod:oddstone is ideomod:oddstone). So:
  *
  * - Both installed (IdeomodPresence.STEP_ASIDE): this mod steps aside. It registers nothing,
@@ -111,7 +111,7 @@ public final class IdeomodCompat {
         if (event.getPackType() != PackType.SERVER_DATA) return;
         Path root = ModList.get().getModFileById(Ideomod.MOD_ID).getFile().findResource(DATA_PACK_FOLDER);
         event.addRepositorySource(consumer -> {
-            Pack pack = Pack.readMetaAndCreate(DATA_PACK_FOLDER, Component.literal("Ideomancer's Machine Mod"),
+            Pack pack = Pack.readMetaAndCreate(DATA_PACK_FOLDER, Component.literal("Ideomancer's Machines"),
                     true, id -> new PathPackResources(id, root, true),
                     PackType.SERVER_DATA, Pack.Position.TOP, PackSource.BUILT_IN);
             if (pack != null) consumer.accept(pack);

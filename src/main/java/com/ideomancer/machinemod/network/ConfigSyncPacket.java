@@ -14,7 +14,7 @@ import net.minecraftforge.network.PacketDistributor;
 import java.util.function.Supplier;
 
 /**
- * Server-to-client packet carrying the server's whole Machine Mod config (machinemod.json).
+ * Server-to-client packet carrying the server's whole Ideomancer's Machines config (machinemod.json).
  *
  * Sent to each player who joins, and to everyone after /machinemod reload. The client
  * uses these values while connected (IdeomodConfig.applyServerConfig) and goes back

@@ -1,4 +1,4 @@
-# Ideomancer's Machine Mod
+# Ideomancer's Machines
 
 A Minecraft Forge 1.20.1 mod about moving blocks and flying machines: Oddstone and sympathetic movement, Odd Slime,
 the Repulser and Attractor, Oddstone portals, Hollowstone, the Machine Base and all its machines, Frames and Framed
@@ -26,8 +26,8 @@ The intro and disclaimers below are the Ideomancer's, written for Ideomod.
 
 **Work in progress.** Things will change, and some parts are rough (see [Known rough edges](#known-rough-edges)).
 
-**Download:** [the latest jar](https://github.com/Socratique/Ideomancers-Machine-Mod/releases/latest) from this
-repository's Releases page, or from [CurseForge](https://www.curseforge.com/minecraft/mc-mods/ideomancers-machine-mod). Put it in the `mods` folder of a Minecraft 1.20.1 Forge install.
+**Download:** [the latest jar](https://github.com/Socratique/Ideomancers-Machines/releases/latest) from this
+repository's Releases page, or from [CurseForge](https://www.curseforge.com/minecraft/mc-mods/ideomancers-machines). Put it in the `mods` folder of a Minecraft 1.20.1 Forge install.
 It is needed on both the client and the server. To build it yourself, see [Building and running](#building-and-running).
 
 **What changed in each version:** [CHANGELOG.md](CHANGELOG.md).
@@ -41,7 +41,7 @@ It is needed on both the client and the server. To build it yourself, see [Build
 
 ![Every block the mod adds](docs/media/blocks.png)
 
-In game, everything is in the **Machine Mod** creative tab. A second tab, **Framed Blocks**, lists every framed block.
+In game, everything is in the **Ideomancer's Machines** creative tab. A second tab, **Framed Blocks**, lists every framed block.
 
 *The animations in this README are illustrations drawn from the mod's own textures, not screen captures (see [About the pictures](#about-the-pictures)).*
 
@@ -547,7 +547,7 @@ Everything in this mod is in Ideomod too, under the same names in Ideomod's name
 You need JDK 17. From the repository root:
 
 ```
-./gradlew build        # builds build/libs/ideomancers-machine-mod-0.1.2.jar
+./gradlew build        # builds build/libs/ideomancers-machines-0.1.2.jar
 ./gradlew runClient    # starts a development client with the mod loaded
 ```
 

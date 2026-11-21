@@ -602,7 +602,7 @@ public class IdeomodConfig {
             loaded = true;
             usingServerConfig = true;
         }
-        Ideomod.LOGGER.info("Using the server's Machine Mod settings (sympathetic radius={}, push limit={})",
+        Ideomod.LOGGER.info("Using the server's Ideomancer's Machines settings (sympathetic radius={}, push limit={})",
                 sympatheticRadius, basePushLimit);
     }
 

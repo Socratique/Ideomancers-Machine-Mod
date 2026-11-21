@@ -40,7 +40,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: machine-mod-jar
+          name: ideomancers-machines-jar
           path: build/libs/*.jar
           if-no-files-found: ignore
 

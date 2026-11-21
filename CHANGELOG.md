@@ -1,8 +1,17 @@
 # Changelog
 
-What changed in each version of the Ideomancer's Machine Mod, newest first. Downloads are on the
-[Releases page](https://github.com/Socratique/Ideomancers-Machine-Mod/releases) and on CurseForge.
+What changed in each version of Ideomancer's Machines (called Ideomancer's Machine Mod up to 0.1.2), newest first. Downloads are on the
+[Releases page](https://github.com/Socratique/Ideomancers-Machines/releases) and on CurseForge.
 Details of every feature are in the [README](README.md).
+
+## Unreleased
+
+### Changed
+
+- The mod is now called **Ideomancer's Machines** (CurseForge doesn't allow "mod" in a project's name). The
+  in-game name, creative tab, jar file (`ideomancers-machines-<version>.jar`), GitHub repository
+  (`Socratique/Ideomancers-Machines`; the old address forwards) and CurseForge page follow. The mod id stays
+  `machinemod`, so worlds are unaffected.
 
 ## 0.1.2 (2026-11-20) — Beta
 

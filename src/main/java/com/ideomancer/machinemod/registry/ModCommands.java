@@ -42,7 +42,7 @@ public class ModCommands {
                             return 0;
                         }
                         context.getSource().sendSuccess(
-                                () -> Component.literal("Machine Mod config reloaded."), true);
+                                () -> Component.literal("Ideomancer's Machines config reloaded."), true);
                         Ideomod.LOGGER.info("Config reloaded by command");
                         return 1;
                     })

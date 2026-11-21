@@ -53,7 +53,7 @@ public class Ideomod {
     public Ideomod() {
         if (IdeomodPresence.STEP_ASIDE) {
             // Ideomod is installed and provides everything this mod does (see IdeomodCompat)
-            LOGGER.info("Ideomod is installed: Ideomancer's Machine Mod steps aside and adds nothing");
+            LOGGER.info("Ideomod is installed: Ideomancer's Machines steps aside and adds nothing");
             return;
         }
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
